@@ -1,0 +1,1873 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>饥荒联机版生成代码与合成表</title>
+<style>
+:root {
+  --bg:#0b0d10; --panel:#151821; --panel2:#10131a; --card:#181c26; --line:#2c3240;
+  --text:#f4f4f5; --muted:#a1a1aa; --accent:#d6b15f; --accent2:#f0d38a;
+  --ok:#2ea043; --btn:#2b3242; --btn2:#384154;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;
+  background:
+    radial-gradient(circle at 20% -10%, rgba(214,177,95,.18), transparent 26%),
+    radial-gradient(circle at 100% 0%, rgba(70,90,140,.22), transparent 28%),
+    var(--bg);
+}
+.wrap { max-width:1240px; margin:0 auto; padding:24px 14px 64px; }
+.hero {
+  padding:22px 18px; border:1px solid var(--line); border-radius:18px;
+  background:linear-gradient(135deg,rgba(21,24,33,.94),rgba(13,15,20,.94));
+  box-shadow:0 16px 48px rgba(0,0,0,.25);
+}
+h1 { margin:0 0 10px; font-size:28px; }
+.desc { color:var(--muted); line-height:1.7; margin:0; }
+.toolbar {
+  position:sticky; top:0; z-index:10; margin:16px 0; padding:12px;
+  border:1px solid var(--line); border-radius:16px; background:rgba(11,13,16,.92);
+  backdrop-filter: blur(10px);
+}
+.search {
+  width:100%; border:1px solid var(--line); border-radius:12px; background:#080a0d;
+  color:var(--text); padding:13px 14px; font-size:16px; outline:none;
+}
+.row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.chip {
+  border:1px solid var(--line); background:var(--panel); color:var(--text); border-radius:999px;
+  padding:8px 11px; cursor:pointer; font-size:13px;
+}
+.chip.small { font-size:12px; padding:7px 10px; }
+.chip.active { background:var(--accent); color:#171717; border-color:var(--accent); font-weight:700; }
+.section-title {
+  display:flex; align-items:end; justify-content:space-between; gap:12px;
+  margin:24px 2px 12px;
+}
+.section-title h2 { margin:0; font-size:22px; }
+.count { color:var(--muted); font-size:14px; }
+.grid { display:grid; grid-template-columns:1fr; gap:10px; }
+.item-card,.cmd-card {
+  display:grid; grid-template-columns:minmax(0,1fr) 138px; gap:14px; align-items:center;
+  padding:14px; border:1px solid var(--line); border-radius:16px; background:rgba(24,28,38,.94);
+}
+.title { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+.title span { font-size:18px; font-weight:750; }
+.title small { color:var(--accent2); font-size:13px; }
+.meta { display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 8px; }
+.meta span {
+  color:#d4d4d8; font-size:12px; background:var(--panel2); border:1px solid var(--line);
+  padding:4px 7px; border-radius:999px;
+}
+.recipe,.use,.note-inline { color:#d4d4d8; line-height:1.6; font-size:14px; }
+.note-inline { color:#f0d38a; margin-top:4px; }
+.copy-btn {
+  border:1px solid #4b5567; border-radius:12px; background:var(--btn);
+  color:var(--text); padding:11px 10px; font-weight:750; cursor:pointer;
+}
+.copy-btn:hover { background:var(--btn2); }
+.copy-btn.copied { background:var(--ok); border-color:var(--ok); }
+.hidden { display:none !important; }
+.footer-note { color:var(--muted); line-height:1.7; margin-top:18px; font-size:14px; }
+.toast {
+  position:fixed; left:50%; bottom:24px; transform:translateX(-50%);
+  display:none; background:#111827; border:1px solid #374151; color:white;
+  padding:10px 14px; border-radius:999px; z-index:99; box-shadow:0 12px 36px rgba(0,0,0,.35);
+  max-width:92vw; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+@media (max-width:720px) {
+  .wrap { padding:14px 8px 42px; }
+  h1 { font-size:22px; }
+  .item-card,.cmd-card { grid-template-columns:1fr; }
+  .copy-btn { width:100%; }
+  .title span { font-size:17px; }
+  .recipe,.use,.note-inline { font-size:13.5px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>饥荒联机版生成代码与合成表</h1>
+    <p class="desc">点击按钮直接复制生成代码。页面包含：常用控制台指令、基础材料、核心建筑、料理配方、装备、回血道具、角色专属物品、沃尔特弹弓弹药等。代码默认使用 <b>c_give</b>；建筑类如需直接放到地图上，可把 <b>c_give</b> 改为 <b>c_spawn</b>。</p>
+  </section>
+
+  <section class="toolbar">
+    <input id="search" class="search" placeholder="搜索：阿比盖尔、弹弓、肉丸、强心针、沃利、旺达、齿轮、回满血">
+    <div class="row">
+      <button class="chip active" data-type="mode" data-value="all">全部</button>
+      <button class="chip" data-type="mode" data-value="commands">只看常用指令</button>
+      <button class="chip" data-type="mode" data-value="items">只看物品</button>
+    </div>
+    <div class="row"><button class="chip" data-type="section" data-value="01 基础材料：开局到建家">基础材料：开局到建家</button><button class="chip" data-type="section" data-value="02 工具与基地核心">工具与基地核心</button><button class="chip" data-type="section" data-value="03 精炼与中后期材料">精炼与中后期材料</button><button class="chip" data-type="section" data-value="04 常用料理与配方">常用料理与配方</button><button class="chip" data-type="section" data-value="05 装备、回血与季节">装备、回血与季节</button><button class="chip" data-type="section" data-value="06 角色特殊道具">角色特殊道具</button><button class="chip" data-type="section" data-value="07 弹药、远程与补充">弹药、远程与补充</button></div>
+    <div class="row"><button class="chip small" data-type="group" data-value="通用材料">通用材料</button><button class="chip small" data-type="group" data-value="通用工具/建筑">通用工具/建筑</button><button class="chip small" data-type="group" data-value="锅/食物">锅/食物</button><button class="chip small" data-type="group" data-value="通用装备">通用装备</button><button class="chip small" data-type="group" data-value="Willow 薇洛">Willow 薇洛</button><button class="chip small" data-type="group" data-value="Wendy 温蒂">Wendy 温蒂</button><button class="chip small" data-type="group" data-value="Walter 沃尔特">Walter 沃尔特</button><button class="chip small" data-type="group" data-value="Winona 薇诺娜">Winona 薇诺娜</button><button class="chip small" data-type="group" data-value="Warly 沃利">Warly 沃利</button><button class="chip small" data-type="group" data-value="Wigfrid 女武神">Wigfrid 女武神</button><button class="chip small" data-type="group" data-value="Wormwood 沃姆伍德">Wormwood 沃姆伍德</button><button class="chip small" data-type="group" data-value="Wortox 沃拓克斯">Wortox 沃拓克斯</button><button class="chip small" data-type="group" data-value="Wurt 沃特">Wurt 沃特</button><button class="chip small" data-type="group" data-value="Wanda 旺达">Wanda 旺达</button><button class="chip small" data-type="group" data-value="WX-78">WX-78</button><button class="chip small" data-type="group" data-value="Webber 韦伯">Webber 韦伯</button><button class="chip small" data-type="group" data-value="Woodie 伍迪">Woodie 伍迪</button><button class="chip small" data-type="group" data-value="Maxwell 麦斯威尔">Maxwell 麦斯威尔</button><button class="chip small" data-type="group" data-value="Wes 韦斯">Wes 韦斯</button><button class="chip small" data-type="group" data-value="Wolfgang 沃尔夫冈">Wolfgang 沃尔夫冈</button><button class="chip small" data-type="group" data-value="通用远程">通用远程</button></div>
+  </section>
+
+  <section id="commandsBlock">
+    <div class="section-title"><h2>常用控制台指令</h2><span class="count" id="cmdCount"></span></div>
+    <div class="grid" id="cmdGrid">
+    <article class="cmd-card" data-search="上帝模式开/关 免疫大多数伤害；再次输入通常会切换状态。 c_godmode()">
+      <div class="main">
+        <div class="title"><span>上帝模式开/关</span></div>
+        <div class="use"><b>用途：</b>免疫大多数伤害；再次输入通常会切换状态。</div>
+      </div>
+      <button class="copy-btn" data-code="c_godmode()">复制指令</button>
+    </article>
+    
+
+    <article class="cmd-card" data-search="超级上帝模式 回满血、饥饿、理智，并开启上帝模式。 c_supergodmode()">
+      <div class="main">
+        <div class="title"><span>超级上帝模式</span></div>
+        <div class="use"><b>用途：</b>回满血、饥饿、理智，并开启上帝模式。</div>
+      </div>
+      <button class="copy-btn" data-code="c_supergodmode()">复制指令</button>
+    </article>
+    
+
+    <article class="cmd-card" data-search="回满血 生命值设为100%。 c_sethealth(1)">
+      <div class="main">
+        <div class="title"><span>回满血</span></div>
+        <div class="use"><b>用途：</b>生命值设为100%。</div>
+      </div>
+      <button class="copy-btn" data-code="c_sethealth(1)">复制指令</button>
+    </article>
+    
+
+    <article class="cmd-card" data-search="回满饥饿 饥饿值设为100%。 c_sethunger(1)">
+      <div class="main">
+        <div class="title"><span>回满饥饿</span></div>
+        <div class="use"><b>用途：</b>饥饿值设为100%。</div>
+      </div>
+      <button class="copy-btn" data-code="c_sethunger(1)">复制指令</button>
+    </article>
+    
+
+    <article class="cmd-card" data-search="回满理智 理智值设为100%。 c_setsanity(1)">
+      <div class="main">
+        <div class="title"><span>回满理智</span></div>
+        <div class="use"><b>用途：</b>理智值设为100%。</div>
+      </div>
+      <button class="copy-btn" data-code="c_setsanity(1)">复制指令</button>
+    </article>
+    
+
+    <article class="cmd-card" data-search="设置体温正常 体温设为正常值。 c_settemperature(25)">
+      <div class="main">
+        <div class="title"><span>设置体温正常</span></div>
+        <div class="use"><b>用途：</b>体温设为正常值。</div>
+      </div>
+      <button class="copy-btn" data-code="c_settemperature(25)">复制指令</button>
+    </article>
+    
+
+    <article class="cmd-card" data-search="加速2倍 移动速度变为2倍。 c_speedmult(2)">
+      <div class="main">
+        <div class="title"><span>加速2倍</span></div>
+        <div class="use"><b>用途：</b>移动速度变为2倍。</div>
+      </div>
+      <button class="copy-btn" data-code="c_speedmult(2)">复制指令</button>
+    </article>
+    
+
+    <article class="cmd-card" data-search="恢复正常速度 移动速度恢复1倍。 c_speedmult(1)">
+      <div class="main">
+        <div class="title"><span>恢复正常速度</span></div>
+        <div class="use"><b>用途：</b>移动速度恢复1倍。</div>
+      </div>
+      <button class="copy-btn" data-code="c_speedmult(1)">复制指令</button>
+    </article>
+    
+
+    <article class="cmd-card" data-search="复活自己 死亡后复活当前玩家。 c_respawn()">
+      <div class="main">
+        <div class="title"><span>复活自己</span></div>
+        <div class="use"><b>用途：</b>死亡后复活当前玩家。</div>
+      </div>
+      <button class="copy-btn" data-code="c_respawn()">复制指令</button>
+    </article>
+    
+
+    <article class="cmd-card" data-search="杀死自己 杀死当前玩家。 c_kill()">
+      <div class="main">
+        <div class="title"><span>杀死自己</span></div>
+        <div class="use"><b>用途：</b>杀死当前玩家。</div>
+      </div>
+      <button class="copy-btn" data-code="c_kill()">复制指令</button>
+    </article>
+    
+
+    <article class="cmd-card" data-search="跳到下一天 直接推进到下一天。 theworld:pushevent(&quot;ms_nextcycle&quot;)">
+      <div class="main">
+        <div class="title"><span>跳到下一天</span></div>
+        <div class="use"><b>用途：</b>直接推进到下一天。</div>
+      </div>
+      <button class="copy-btn" data-code="TheWorld:PushEvent(&quot;ms_nextcycle&quot;)">复制指令</button>
+    </article>
+    
+
+    <article class="cmd-card" data-search="鼠标位置闪电 在鼠标位置打雷。 theworld:pushevent(&quot;ms_sendlightningstrike&quot;, theinput:getworldposition())">
+      <div class="main">
+        <div class="title"><span>鼠标位置闪电</span></div>
+        <div class="use"><b>用途：</b>在鼠标位置打雷。</div>
+      </div>
+      <button class="copy-btn" data-code="TheWorld:PushEvent(&quot;ms_sendlightningstrike&quot;, TheInput:GetWorldPosition())">复制指令</button>
+    </article>
+    </div>
+  </section>
+
+  <section id="itemsBlock">
+    <div class="section-title"><h2>物品、角色道具与合成表</h2><span class="count" id="itemCount"></span></div>
+    <div class="grid" id="itemGrid">
+    <article class="item-card" data-section="01 基础材料：开局到建家" data-group="通用材料" data-search="01 基础材料：开局到建家 通用材料 草 cut grass cutgrass 采集草丛。 火把、绳子、陷阱、草甲、基础建筑。 ">
+      <div class="main">
+        <div class="title"><span>草</span><small>Cut Grass</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：40</span><span>Prefab：cutgrass</span></div>
+        <div class="recipe"><b>合成/获取：</b>采集草丛。</div>
+        <div class="use"><b>用途：</b>火把、绳子、陷阱、草甲、基础建筑。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;cutgrass&quot;, 40)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="01 基础材料：开局到建家" data-group="通用材料" data-search="01 基础材料：开局到建家 通用材料 树枝 twigs twigs 采集树苗。 工具、火把、陷阱、武器。 ">
+      <div class="main">
+        <div class="title"><span>树枝</span><small>Twigs</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：40</span><span>Prefab：twigs</span></div>
+        <div class="recipe"><b>合成/获取：</b>采集树苗。</div>
+        <div class="use"><b>用途：</b>工具、火把、陷阱、武器。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;twigs&quot;, 40)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="01 基础材料：开局到建家" data-group="通用材料" data-search="01 基础材料：开局到建家 通用材料 木头 logs log 砍树。 火堆、箱子、木甲、科技建筑。 ">
+      <div class="main">
+        <div class="title"><span>木头</span><small>Logs</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：40</span><span>Prefab：log</span></div>
+        <div class="recipe"><b>合成/获取：</b>砍树。</div>
+        <div class="use"><b>用途：</b>火堆、箱子、木甲、科技建筑。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;log&quot;, 40)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="01 基础材料：开局到建家" data-group="通用材料" data-search="01 基础材料：开局到建家 通用材料 燧石 flint flint 地面捡取或敲矿。 斧头、镐子、铲子等基础工具。 ">
+      <div class="main">
+        <div class="title"><span>燧石</span><small>Flint</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：20</span><span>Prefab：flint</span></div>
+        <div class="recipe"><b>合成/获取：</b>地面捡取或敲矿。</div>
+        <div class="use"><b>用途：</b>斧头、镐子、铲子等基础工具。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;flint&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="01 基础材料：开局到建家" data-group="通用材料" data-search="01 基础材料：开局到建家 通用材料 石头 rocks rocks 敲普通矿。 火坑、锅、炼金引擎、石墙。 ">
+      <div class="main">
+        <div class="title"><span>石头</span><small>Rocks</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：40</span><span>Prefab：rocks</span></div>
+        <div class="recipe"><b>合成/获取：</b>敲普通矿。</div>
+        <div class="use"><b>用途：</b>火坑、锅、炼金引擎、石墙。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;rocks&quot;, 40)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="01 基础材料：开局到建家" data-group="通用材料" data-search="01 基础材料：开局到建家 通用材料 金子 gold nugget goldnugget 敲金矿或与猪王交易。 科学机器、炼金引擎、金工具、避雷针。 ">
+      <div class="main">
+        <div class="title"><span>金子</span><small>Gold Nugget</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：20</span><span>Prefab：goldnugget</span></div>
+        <div class="recipe"><b>合成/获取：</b>敲金矿或与猪王交易。</div>
+        <div class="use"><b>用途：</b>科学机器、炼金引擎、金工具、避雷针。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;goldnugget&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="01 基础材料：开局到建家" data-group="通用材料" data-search="01 基础材料：开局到建家 通用材料 硝石 nitre nitre 敲矿获得。 夏季冷火、吸热火坑。 ">
+      <div class="main">
+        <div class="title"><span>硝石</span><small>Nitre</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：20</span><span>Prefab：nitre</span></div>
+        <div class="recipe"><b>合成/获取：</b>敲矿获得。</div>
+        <div class="use"><b>用途：</b>夏季冷火、吸热火坑。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;nitre&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="01 基础材料：开局到建家" data-group="通用材料" data-search="01 基础材料：开局到建家 通用材料 木炭 charcoal charcoal 烧树后砍掉。 锅、晾肉架。 ">
+      <div class="main">
+        <div class="title"><span>木炭</span><small>Charcoal</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：20</span><span>Prefab：charcoal</span></div>
+        <div class="recipe"><b>合成/获取：</b>烧树后砍掉。</div>
+        <div class="use"><b>用途：</b>锅、晾肉架。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;charcoal&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="01 基础材料：开局到建家" data-group="通用材料" data-search="01 基础材料：开局到建家 通用材料 便便 manure poop 牛群附近、猪吃花瓣等。 施肥移植物、农场。 ">
+      <div class="main">
+        <div class="title"><span>便便</span><small>Manure</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：40</span><span>Prefab：poop</span></div>
+        <div class="recipe"><b>合成/获取：</b>牛群附近、猪吃花瓣等。</div>
+        <div class="use"><b>用途：</b>施肥移植物、农场。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;poop&quot;, 40)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="01 基础材料：开局到建家" data-group="通用材料" data-search="01 基础材料：开局到建家 通用材料 腐烂物 rot spoiled_food 食物腐烂后获得。 施肥、部分制作。 ">
+      <div class="main">
+        <div class="title"><span>腐烂物</span><small>Rot</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：40</span><span>Prefab：spoiled_food</span></div>
+        <div class="recipe"><b>合成/获取：</b>食物腐烂后获得。</div>
+        <div class="use"><b>用途：</b>施肥、部分制作。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;spoiled_food&quot;, 40)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="02 工具与基地核心" data-group="通用工具/建筑" data-search="02 工具与基地核心 通用工具/建筑 火把 torch torch 草 ×2 + 树枝 ×2。 夜晚保命。 ">
+      <div class="main">
+        <div class="title"><span>火把</span><small>Torch</small></div>
+        <div class="meta"><span>分类：通用工具/建筑</span><span>数量：1</span><span>Prefab：torch</span></div>
+        <div class="recipe"><b>合成/获取：</b>草 ×2 + 树枝 ×2。</div>
+        <div class="use"><b>用途：</b>夜晚保命。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;torch&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="02 工具与基地核心" data-group="通用工具/建筑" data-search="02 工具与基地核心 通用工具/建筑 斧头 axe axe 树枝 ×1 + 燧石 ×1。 砍树拿木头。 ">
+      <div class="main">
+        <div class="title"><span>斧头</span><small>Axe</small></div>
+        <div class="meta"><span>分类：通用工具/建筑</span><span>数量：1</span><span>Prefab：axe</span></div>
+        <div class="recipe"><b>合成/获取：</b>树枝 ×1 + 燧石 ×1。</div>
+        <div class="use"><b>用途：</b>砍树拿木头。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;axe&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="02 工具与基地核心" data-group="通用工具/建筑" data-search="02 工具与基地核心 通用工具/建筑 鹤嘴锄 pickaxe pickaxe 树枝 ×2 + 燧石 ×2。 敲矿拿石头、金子。 ">
+      <div class="main">
+        <div class="title"><span>鹤嘴锄</span><small>Pickaxe</small></div>
+        <div class="meta"><span>分类：通用工具/建筑</span><span>数量：1</span><span>Prefab：pickaxe</span></div>
+        <div class="recipe"><b>合成/获取：</b>树枝 ×2 + 燧石 ×2。</div>
+        <div class="use"><b>用途：</b>敲矿拿石头、金子。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;pickaxe&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="02 工具与基地核心" data-group="通用工具/建筑" data-search="02 工具与基地核心 通用工具/建筑 铲子 shovel shovel 树枝 ×2 + 燧石 ×2，需要科学机器解锁。 移植草、树枝、浆果丛。 ">
+      <div class="main">
+        <div class="title"><span>铲子</span><small>Shovel</small></div>
+        <div class="meta"><span>分类：通用工具/建筑</span><span>数量：1</span><span>Prefab：shovel</span></div>
+        <div class="recipe"><b>合成/获取：</b>树枝 ×2 + 燧石 ×2，需要科学机器解锁。</div>
+        <div class="use"><b>用途：</b>移植草、树枝、浆果丛。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;shovel&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="02 工具与基地核心" data-group="通用工具/建筑" data-search="02 工具与基地核心 通用工具/建筑 背包 backpack backpack 草 ×4 + 树枝 ×4，需要科学机器解锁。 增加物品栏。 ">
+      <div class="main">
+        <div class="title"><span>背包</span><small>Backpack</small></div>
+        <div class="meta"><span>分类：通用工具/建筑</span><span>数量：1</span><span>Prefab：backpack</span></div>
+        <div class="recipe"><b>合成/获取：</b>草 ×4 + 树枝 ×4，需要科学机器解锁。</div>
+        <div class="use"><b>用途：</b>增加物品栏。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;backpack&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="02 工具与基地核心" data-group="通用工具/建筑" data-search="02 工具与基地核心 通用工具/建筑 科学机器 science machine researchlab 金子 ×1 + 木头 ×4 + 石头 ×4。 解锁基础科技。 建筑类用 c_give 可能进背包异常；需要实体时可改用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>科学机器</span><small>Science Machine</small></div>
+        <div class="meta"><span>分类：通用工具/建筑</span><span>数量：1</span><span>Prefab：researchlab</span></div>
+        <div class="recipe"><b>合成/获取：</b>金子 ×1 + 木头 ×4 + 石头 ×4。</div>
+        <div class="use"><b>用途：</b>解锁基础科技。</div>
+        <div class="note-inline">建筑类用 c_give 可能进背包异常；需要实体时可改用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;researchlab&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="02 工具与基地核心" data-group="通用工具/建筑" data-search="02 工具与基地核心 通用工具/建筑 炼金引擎 alchemy engine researchlab2 木板 ×4 + 石砖 ×2 + 电子元件 ×2。 解锁中期科技。 建筑类用 c_give 可能进背包异常；需要实体时可改用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>炼金引擎</span><small>Alchemy Engine</small></div>
+        <div class="meta"><span>分类：通用工具/建筑</span><span>数量：1</span><span>Prefab：researchlab2</span></div>
+        <div class="recipe"><b>合成/获取：</b>木板 ×4 + 石砖 ×2 + 电子元件 ×2。</div>
+        <div class="use"><b>用途：</b>解锁中期科技。</div>
+        <div class="note-inline">建筑类用 c_give 可能进背包异常；需要实体时可改用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;researchlab2&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="02 工具与基地核心" data-group="通用工具/建筑" data-search="02 工具与基地核心 通用工具/建筑 火坑 fire pit firepit 木头 ×2 + 石头 ×12。 稳定光源和烹饪点。 建筑类需要实体时可用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>火坑</span><small>Fire Pit</small></div>
+        <div class="meta"><span>分类：通用工具/建筑</span><span>数量：1</span><span>Prefab：firepit</span></div>
+        <div class="recipe"><b>合成/获取：</b>木头 ×2 + 石头 ×12。</div>
+        <div class="use"><b>用途：</b>稳定光源和烹饪点。</div>
+        <div class="note-inline">建筑类需要实体时可用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;firepit&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="02 工具与基地核心" data-group="通用工具/建筑" data-search="02 工具与基地核心 通用工具/建筑 锅 crock pot cookpot 石砖 ×3 + 木炭 ×6 + 树枝 ×6。 制作料理。 建筑类需要实体时可用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>锅</span><small>Crock Pot</small></div>
+        <div class="meta"><span>分类：通用工具/建筑</span><span>数量：1</span><span>Prefab：cookpot</span></div>
+        <div class="recipe"><b>合成/获取：</b>石砖 ×3 + 木炭 ×6 + 树枝 ×6。</div>
+        <div class="use"><b>用途：</b>制作料理。</div>
+        <div class="note-inline">建筑类需要实体时可用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;cookpot&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="02 工具与基地核心" data-group="通用工具/建筑" data-search="02 工具与基地核心 通用工具/建筑 冰箱 ice box icebox 金子 ×2 + 齿轮 ×1 + 木板 ×1。 延缓食物腐烂。 建筑类需要实体时可用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>冰箱</span><small>Ice Box</small></div>
+        <div class="meta"><span>分类：通用工具/建筑</span><span>数量：1</span><span>Prefab：icebox</span></div>
+        <div class="recipe"><b>合成/获取：</b>金子 ×2 + 齿轮 ×1 + 木板 ×1。</div>
+        <div class="use"><b>用途：</b>延缓食物腐烂。</div>
+        <div class="note-inline">建筑类需要实体时可用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;icebox&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="02 工具与基地核心" data-group="通用工具/建筑" data-search="02 工具与基地核心 通用工具/建筑 晾肉架 drying rack meatrack 树枝 ×3 + 木炭 ×2 + 绳子 ×3。 制作肉干。 建筑类需要实体时可用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>晾肉架</span><small>Drying Rack</small></div>
+        <div class="meta"><span>分类：通用工具/建筑</span><span>数量：1</span><span>Prefab：meatrack</span></div>
+        <div class="recipe"><b>合成/获取：</b>树枝 ×3 + 木炭 ×2 + 绳子 ×3。</div>
+        <div class="use"><b>用途：</b>制作肉干。</div>
+        <div class="note-inline">建筑类需要实体时可用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;meatrack&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="02 工具与基地核心" data-group="通用工具/建筑" data-search="02 工具与基地核心 通用工具/建筑 避雷针 lightning rod lightning_rod 金子 ×4 + 石砖 ×1。 防止雷击烧家。 建筑类需要实体时可用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>避雷针</span><small>Lightning Rod</small></div>
+        <div class="meta"><span>分类：通用工具/建筑</span><span>数量：1</span><span>Prefab：lightning_rod</span></div>
+        <div class="recipe"><b>合成/获取：</b>金子 ×4 + 石砖 ×1。</div>
+        <div class="use"><b>用途：</b>防止雷击烧家。</div>
+        <div class="note-inline">建筑类需要实体时可用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;lightning_rod&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="02 工具与基地核心" data-group="通用工具/建筑" data-search="02 工具与基地核心 通用工具/建筑 雪球发射器 ice flingomatic firesuppressor 齿轮 ×2 + 冰 ×15 + 电子元件 ×2。 夏季防自燃。 建筑类需要实体时可用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>雪球发射器</span><small>Ice Flingomatic</small></div>
+        <div class="meta"><span>分类：通用工具/建筑</span><span>数量：1</span><span>Prefab：firesuppressor</span></div>
+        <div class="recipe"><b>合成/获取：</b>齿轮 ×2 + 冰 ×15 + 电子元件 ×2。</div>
+        <div class="use"><b>用途：</b>夏季防自燃。</div>
+        <div class="note-inline">建筑类需要实体时可用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;firesuppressor&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="03 精炼与中后期材料" data-group="通用材料" data-search="03 精炼与中后期材料 通用材料 绳子 rope rope 草 ×3。 长矛、晾肉架、草卷等。 ">
+      <div class="main">
+        <div class="title"><span>绳子</span><small>Rope</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：20</span><span>Prefab：rope</span></div>
+        <div class="recipe"><b>合成/获取：</b>草 ×3。</div>
+        <div class="use"><b>用途：</b>长矛、晾肉架、草卷等。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;rope&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="03 精炼与中后期材料" data-group="通用材料" data-search="03 精炼与中后期材料 通用材料 木板 boards boards 木头 ×4。 箱子、科技、船和建筑。 ">
+      <div class="main">
+        <div class="title"><span>木板</span><small>Boards</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：20</span><span>Prefab：boards</span></div>
+        <div class="recipe"><b>合成/获取：</b>木头 ×4。</div>
+        <div class="use"><b>用途：</b>箱子、科技、船和建筑。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;boards&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="03 精炼与中后期材料" data-group="通用材料" data-search="03 精炼与中后期材料 通用材料 石砖 cut stone cutstone 石头 ×3。 锅、炼金引擎、火坑等。 ">
+      <div class="main">
+        <div class="title"><span>石砖</span><small>Cut Stone</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：20</span><span>Prefab：cutstone</span></div>
+        <div class="recipe"><b>合成/获取：</b>石头 ×3。</div>
+        <div class="use"><b>用途：</b>锅、炼金引擎、火坑等。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;cutstone&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="03 精炼与中后期材料" data-group="通用材料" data-search="03 精炼与中后期材料 通用材料 莎草纸 papyrus papyrus 芦苇 ×4。 鸟笼、吹箭、蜂蜜药膏。 ">
+      <div class="main">
+        <div class="title"><span>莎草纸</span><small>Papyrus</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：20</span><span>Prefab：papyrus</span></div>
+        <div class="recipe"><b>合成/获取：</b>芦苇 ×4。</div>
+        <div class="use"><b>用途：</b>鸟笼、吹箭、蜂蜜药膏。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;papyrus&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="03 精炼与中后期材料" data-group="通用材料" data-search="03 精炼与中后期材料 通用材料 电子元件 electrical doodad transistor 金子 ×2 + 石砖 ×1。 炼金引擎、雪球发射器等。 ">
+      <div class="main">
+        <div class="title"><span>电子元件</span><small>Electrical Doodad</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：20</span><span>Prefab：transistor</span></div>
+        <div class="recipe"><b>合成/获取：</b>金子 ×2 + 石砖 ×1。</div>
+        <div class="use"><b>用途：</b>炼金引擎、雪球发射器等。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;transistor&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="03 精炼与中后期材料" data-group="通用材料" data-search="03 精炼与中后期材料 通用材料 齿轮 gears gears 击败发条生物，或特殊地图资源。 冰箱、雪球发射器、wx-78升级。 ">
+      <div class="main">
+        <div class="title"><span>齿轮</span><small>Gears</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：10</span><span>Prefab：gears</span></div>
+        <div class="recipe"><b>合成/获取：</b>击败发条生物，或特殊地图资源。</div>
+        <div class="use"><b>用途：</b>冰箱、雪球发射器、WX-78升级。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;gears&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="03 精炼与中后期材料" data-group="通用材料" data-search="03 精炼与中后期材料 通用材料 蜘蛛丝 silk silk 击杀蜘蛛或拆蜘蛛巢。 捕虫网、钓竿、帐篷、缝纫包。 ">
+      <div class="main">
+        <div class="title"><span>蜘蛛丝</span><small>Silk</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：40</span><span>Prefab：silk</span></div>
+        <div class="recipe"><b>合成/获取：</b>击杀蜘蛛或拆蜘蛛巢。</div>
+        <div class="use"><b>用途：</b>捕虫网、钓竿、帐篷、缝纫包。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;silk&quot;, 40)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="03 精炼与中后期材料" data-group="通用材料" data-search="03 精炼与中后期材料 通用材料 蜘蛛腺体 spider gland spidergland 击杀蜘蛛概率掉落。 治疗药膏，也可直接回血。 ">
+      <div class="main">
+        <div class="title"><span>蜘蛛腺体</span><small>Spider Gland</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：20</span><span>Prefab：spidergland</span></div>
+        <div class="recipe"><b>合成/获取：</b>击杀蜘蛛概率掉落。</div>
+        <div class="use"><b>用途：</b>治疗药膏，也可直接回血。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;spidergland&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="03 精炼与中后期材料" data-group="通用材料" data-search="03 精炼与中后期材料 通用材料 猪皮 pig skin pigskin 猪人、猪头、疯猪。 橄榄球头盔、火腿棒、猪皮包。 ">
+      <div class="main">
+        <div class="title"><span>猪皮</span><small>Pig Skin</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：20</span><span>Prefab：pigskin</span></div>
+        <div class="recipe"><b>合成/获取：</b>猪人、猪头、疯猪。</div>
+        <div class="use"><b>用途：</b>橄榄球头盔、火腿棒、猪皮包。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;pigskin&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="03 精炼与中后期材料" data-group="通用材料" data-search="03 精炼与中后期材料 通用材料 狗牙 hound&#x27;s tooth houndstooth 击杀猎犬。 犬牙陷阱、缝纫包。 ">
+      <div class="main">
+        <div class="title"><span>狗牙</span><small>Hound&#x27;s Tooth</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：20</span><span>Prefab：houndstooth</span></div>
+        <div class="recipe"><b>合成/获取：</b>击杀猎犬。</div>
+        <div class="use"><b>用途：</b>犬牙陷阱、缝纫包。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;houndstooth&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="03 精炼与中后期材料" data-group="通用材料" data-search="03 精炼与中后期材料 通用材料 牛毛 beefalo wool beefalowool 剃牛或击杀牛。 冬帽、牛帽、保暖。 ">
+      <div class="main">
+        <div class="title"><span>牛毛</span><small>Beefalo Wool</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：20</span><span>Prefab：beefalowool</span></div>
+        <div class="recipe"><b>合成/获取：</b>剃牛或击杀牛。</div>
+        <div class="use"><b>用途：</b>冬帽、牛帽、保暖。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;beefalowool&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="03 精炼与中后期材料" data-group="通用材料" data-search="03 精炼与中后期材料 通用材料 噩梦燃料 nightmare fuel nightmarefuel 击杀影怪、恶魔花等。 暗影装备、魔法科技。 ">
+      <div class="main">
+        <div class="title"><span>噩梦燃料</span><small>Nightmare Fuel</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：40</span><span>Prefab：nightmarefuel</span></div>
+        <div class="recipe"><b>合成/获取：</b>击杀影怪、恶魔花等。</div>
+        <div class="use"><b>用途：</b>暗影装备、魔法科技。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;nightmarefuel&quot;, 40)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="03 精炼与中后期材料" data-group="通用材料" data-search="03 精炼与中后期材料 通用材料 活木 living log livinglog 树精、完全正常的树等。 魔法科技、暗影操控器。 ">
+      <div class="main">
+        <div class="title"><span>活木</span><small>Living Log</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：20</span><span>Prefab：livinglog</span></div>
+        <div class="recipe"><b>合成/获取：</b>树精、完全正常的树等。</div>
+        <div class="use"><b>用途：</b>魔法科技、暗影操控器。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;livinglog&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="03 精炼与中后期材料" data-group="通用材料" data-search="03 精炼与中后期材料 通用材料 铥矿碎片 thulecite fragments thulecite_pieces 洞穴远古区。 修复远古伪科学站、合成铥矿。 ">
+      <div class="main">
+        <div class="title"><span>铥矿碎片</span><small>Thulecite Fragments</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：40</span><span>Prefab：thulecite_pieces</span></div>
+        <div class="recipe"><b>合成/获取：</b>洞穴远古区。</div>
+        <div class="use"><b>用途：</b>修复远古伪科学站、合成铥矿。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;thulecite_pieces&quot;, 40)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="03 精炼与中后期材料" data-group="通用材料" data-search="03 精炼与中后期材料 通用材料 铥矿 thulecite thulecite 远古区或碎片合成。 远古装备和远古科技。 ">
+      <div class="main">
+        <div class="title"><span>铥矿</span><small>Thulecite</small></div>
+        <div class="meta"><span>分类：通用材料</span><span>数量：20</span><span>Prefab：thulecite</span></div>
+        <div class="recipe"><b>合成/获取：</b>远古区或碎片合成。</div>
+        <div class="use"><b>用途：</b>远古装备和远古科技。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;thulecite&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="04 常用料理与配方" data-group="锅/食物" data-search="04 常用料理与配方 锅/食物 肉丸 meatballs meatballs 锅：肉度 &gt; 0，不能有树枝；常见做法：1怪物肉 + 3浆果/冰。 高性价比回饥饿。 ">
+      <div class="main">
+        <div class="title"><span>肉丸</span><small>Meatballs</small></div>
+        <div class="meta"><span>分类：锅/食物</span><span>数量：20</span><span>Prefab：meatballs</span></div>
+        <div class="recipe"><b>合成/获取：</b>锅：肉度 &gt; 0，不能有树枝；常见做法：1怪物肉 + 3浆果/冰。</div>
+        <div class="use"><b>用途：</b>高性价比回饥饿。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;meatballs&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="04 常用料理与配方" data-group="锅/食物" data-search="04 常用料理与配方 锅/食物 炖肉汤 meaty stew bonestew 锅：肉度 ≥ 3，不能有树枝；常见做法：2大肉 + 1怪物肉 + 1填充物。 大量回饥饿。 ">
+      <div class="main">
+        <div class="title"><span>炖肉汤</span><small>Meaty Stew</small></div>
+        <div class="meta"><span>分类：锅/食物</span><span>数量：20</span><span>Prefab：bonestew</span></div>
+        <div class="recipe"><b>合成/获取：</b>锅：肉度 ≥ 3，不能有树枝；常见做法：2大肉 + 1怪物肉 + 1填充物。</div>
+        <div class="use"><b>用途：</b>大量回饥饿。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;bonestew&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="04 常用料理与配方" data-group="锅/食物" data-search="04 常用料理与配方 锅/食物 饺子 pierogi perogies 锅：肉 + 蛋 + 菜，不能有树枝。 稳定回血料理。 ">
+      <div class="main">
+        <div class="title"><span>饺子</span><small>Pierogi</small></div>
+        <div class="meta"><span>分类：锅/食物</span><span>数量：20</span><span>Prefab：perogies</span></div>
+        <div class="recipe"><b>合成/获取：</b>锅：肉 + 蛋 + 菜，不能有树枝。</div>
+        <div class="use"><b>用途：</b>稳定回血料理。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;perogies&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="04 常用料理与配方" data-group="锅/食物" data-search="04 常用料理与配方 锅/食物 培根煎蛋 bacon and eggs baconeggs 锅：蛋度 ≥ 2，肉度 ≥ 1.5，不能有菜。 保质期长，适合外出。 ">
+      <div class="main">
+        <div class="title"><span>培根煎蛋</span><small>Bacon and Eggs</small></div>
+        <div class="meta"><span>分类：锅/食物</span><span>数量：20</span><span>Prefab：baconeggs</span></div>
+        <div class="recipe"><b>合成/获取：</b>锅：蛋度 ≥ 2，肉度 ≥ 1.5，不能有菜。</div>
+        <div class="use"><b>用途：</b>保质期长，适合外出。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;baconeggs&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="04 常用料理与配方" data-group="锅/食物" data-search="04 常用料理与配方 锅/食物 蜂蜜火腿 honey ham honeyham 锅：蜂蜜 + 肉度 ≥ 2，不能有树枝。 回血和饥饿兼顾。 ">
+      <div class="main">
+        <div class="title"><span>蜂蜜火腿</span><small>Honey Ham</small></div>
+        <div class="meta"><span>分类：锅/食物</span><span>数量：20</span><span>Prefab：honeyham</span></div>
+        <div class="recipe"><b>合成/获取：</b>锅：蜂蜜 + 肉度 ≥ 2，不能有树枝。</div>
+        <div class="use"><b>用途：</b>回血和饥饿兼顾。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;honeyham&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="04 常用料理与配方" data-group="锅/食物" data-search="04 常用料理与配方 锅/食物 蜜汁卤肉 honey nuggets honeynuggets 锅：蜂蜜 + 肉度 &lt; 2，不能有树枝。 中前期回血/饥饿补充。 ">
+      <div class="main">
+        <div class="title"><span>蜜汁卤肉</span><small>Honey Nuggets</small></div>
+        <div class="meta"><span>分类：锅/食物</span><span>数量：20</span><span>Prefab：honeynuggets</span></div>
+        <div class="recipe"><b>合成/获取：</b>锅：蜂蜜 + 肉度 &lt; 2，不能有树枝。</div>
+        <div class="use"><b>用途：</b>中前期回血/饥饿补充。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;honeynuggets&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="04 常用料理与配方" data-group="锅/食物" data-search="04 常用料理与配方 锅/食物 火龙果派 dragonpie dragonpie 锅：火龙果 ×1 + 3个非肉填充，不能有肉。 高收益作物料理。 ">
+      <div class="main">
+        <div class="title"><span>火龙果派</span><small>Dragonpie</small></div>
+        <div class="meta"><span>分类：锅/食物</span><span>数量：20</span><span>Prefab：dragonpie</span></div>
+        <div class="recipe"><b>合成/获取：</b>锅：火龙果 ×1 + 3个非肉填充，不能有肉。</div>
+        <div class="use"><b>用途：</b>高收益作物料理。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;dragonpie&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="04 常用料理与配方" data-group="锅/食物" data-search="04 常用料理与配方 锅/食物 鱼排 fishsticks fishsticks 锅：鱼 + 树枝 ×1，通常再加2填充。 回血料理。 ">
+      <div class="main">
+        <div class="title"><span>鱼排</span><small>Fishsticks</small></div>
+        <div class="meta"><span>分类：锅/食物</span><span>数量：20</span><span>Prefab：fishsticks</span></div>
+        <div class="recipe"><b>合成/获取：</b>锅：鱼 + 树枝 ×1，通常再加2填充。</div>
+        <div class="use"><b>用途：</b>回血料理。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;fishsticks&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="04 常用料理与配方" data-group="锅/食物" data-search="04 常用料理与配方 锅/食物 太妃糖 taffy taffy 锅：蜂蜜度 ≥ 3，不能有肉。 回理智，扣少量血。 ">
+      <div class="main">
+        <div class="title"><span>太妃糖</span><small>Taffy</small></div>
+        <div class="meta"><span>分类：锅/食物</span><span>数量：20</span><span>Prefab：taffy</span></div>
+        <div class="recipe"><b>合成/获取：</b>锅：蜂蜜度 ≥ 3，不能有肉。</div>
+        <div class="use"><b>用途：</b>回理智，扣少量血。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;taffy&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="04 常用料理与配方" data-group="锅/食物" data-search="04 常用料理与配方 锅/食物 大肉干 jerky meat_dried 晾肉架：大肉晾干。 回血、回理智、保质期长。 ">
+      <div class="main">
+        <div class="title"><span>大肉干</span><small>Jerky</small></div>
+        <div class="meta"><span>分类：锅/食物</span><span>数量：20</span><span>Prefab：meat_dried</span></div>
+        <div class="recipe"><b>合成/获取：</b>晾肉架：大肉晾干。</div>
+        <div class="use"><b>用途：</b>回血、回理智、保质期长。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;meat_dried&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="05 装备、回血与季节" data-group="通用装备" data-search="05 装备、回血与季节 通用装备 长矛 spear spear 树枝 ×2 + 绳子 ×1 + 燧石 ×1。 前期基础武器。 ">
+      <div class="main">
+        <div class="title"><span>长矛</span><small>Spear</small></div>
+        <div class="meta"><span>分类：通用装备</span><span>数量：1</span><span>Prefab：spear</span></div>
+        <div class="recipe"><b>合成/获取：</b>树枝 ×2 + 绳子 ×1 + 燧石 ×1。</div>
+        <div class="use"><b>用途：</b>前期基础武器。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;spear&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="05 装备、回血与季节" data-group="通用装备" data-search="05 装备、回血与季节 通用装备 木甲 log suit armorwood 木头 ×8 + 绳子 ×2。 前期基础防具。 ">
+      <div class="main">
+        <div class="title"><span>木甲</span><small>Log Suit</small></div>
+        <div class="meta"><span>分类：通用装备</span><span>数量：1</span><span>Prefab：armorwood</span></div>
+        <div class="recipe"><b>合成/获取：</b>木头 ×8 + 绳子 ×2。</div>
+        <div class="use"><b>用途：</b>前期基础防具。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;armorwood&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="05 装备、回血与季节" data-group="通用装备" data-search="05 装备、回血与季节 通用装备 橄榄球头盔 football helmet footballhat 猪皮 ×1 + 绳子 ×1。 高性价比头部防具。 ">
+      <div class="main">
+        <div class="title"><span>橄榄球头盔</span><small>Football Helmet</small></div>
+        <div class="meta"><span>分类：通用装备</span><span>数量：1</span><span>Prefab：footballhat</span></div>
+        <div class="recipe"><b>合成/获取：</b>猪皮 ×1 + 绳子 ×1。</div>
+        <div class="use"><b>用途：</b>高性价比头部防具。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;footballhat&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="05 装备、回血与季节" data-group="通用装备" data-search="05 装备、回血与季节 通用装备 火腿棒 ham bat hambat 猪皮 ×1 + 树枝 ×2 + 大肉 ×2。 高伤近战武器。 ">
+      <div class="main">
+        <div class="title"><span>火腿棒</span><small>Ham Bat</small></div>
+        <div class="meta"><span>分类：通用装备</span><span>数量：1</span><span>Prefab：hambat</span></div>
+        <div class="recipe"><b>合成/获取：</b>猪皮 ×1 + 树枝 ×2 + 大肉 ×2。</div>
+        <div class="use"><b>用途：</b>高伤近战武器。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;hambat&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="05 装备、回血与季节" data-group="通用装备" data-search="05 装备、回血与季节 通用装备 暗影剑 dark sword nightsword 活木 ×1 + 噩梦燃料 ×5。 高伤武器，会影响理智。 ">
+      <div class="main">
+        <div class="title"><span>暗影剑</span><small>Dark Sword</small></div>
+        <div class="meta"><span>分类：通用装备</span><span>数量：1</span><span>Prefab：nightsword</span></div>
+        <div class="recipe"><b>合成/获取：</b>活木 ×1 + 噩梦燃料 ×5。</div>
+        <div class="use"><b>用途：</b>高伤武器，会影响理智。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;nightsword&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="05 装备、回血与季节" data-group="通用装备" data-search="05 装备、回血与季节 通用装备 暗影甲 night armor armor_sanity 莎草纸 ×3 + 噩梦燃料 ×5。 高防具，会影响理智。 ">
+      <div class="main">
+        <div class="title"><span>暗影甲</span><small>Night Armor</small></div>
+        <div class="meta"><span>分类：通用装备</span><span>数量：1</span><span>Prefab：armor_sanity</span></div>
+        <div class="recipe"><b>合成/获取：</b>莎草纸 ×3 + 噩梦燃料 ×5。</div>
+        <div class="use"><b>用途：</b>高防具，会影响理智。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;armor_sanity&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="05 装备、回血与季节" data-group="通用装备" data-search="05 装备、回血与季节 通用装备 治疗药膏 healing salve healingsalve 灰烬 ×2 + 石头 ×1 + 蜘蛛腺体 ×1。 基础回血。 ">
+      <div class="main">
+        <div class="title"><span>治疗药膏</span><small>Healing Salve</small></div>
+        <div class="meta"><span>分类：通用装备</span><span>数量：10</span><span>Prefab：healingsalve</span></div>
+        <div class="recipe"><b>合成/获取：</b>灰烬 ×2 + 石头 ×1 + 蜘蛛腺体 ×1。</div>
+        <div class="use"><b>用途：</b>基础回血。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;healingsalve&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="05 装备、回血与季节" data-group="通用装备" data-search="05 装备、回血与季节 通用装备 蜂蜜药膏 honey poultice bandage 蜂蜜 ×2 + 莎草纸 ×1。 中高效回血。 ">
+      <div class="main">
+        <div class="title"><span>蜂蜜药膏</span><small>Honey Poultice</small></div>
+        <div class="meta"><span>分类：通用装备</span><span>数量：10</span><span>Prefab：bandage</span></div>
+        <div class="recipe"><b>合成/获取：</b>蜂蜜 ×2 + 莎草纸 ×1。</div>
+        <div class="use"><b>用途：</b>中高效回血。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;bandage&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="05 装备、回血与季节" data-group="通用装备" data-search="05 装备、回血与季节 通用装备 强心针 booster shot lifeinjector 硝石 ×2 + 蜂刺 ×1 + 腐烂物 ×8。 复活后恢复生命上限。 ">
+      <div class="main">
+        <div class="title"><span>强心针</span><small>Booster Shot</small></div>
+        <div class="meta"><span>分类：通用装备</span><span>数量：5</span><span>Prefab：lifeinjector</span></div>
+        <div class="recipe"><b>合成/获取：</b>硝石 ×2 + 蜂刺 ×1 + 腐烂物 ×8。</div>
+        <div class="use"><b>用途：</b>复活后恢复生命上限。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;lifeinjector&quot;, 5)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="05 装备、回血与季节" data-group="通用装备" data-search="05 装备、回血与季节 通用装备 告密的心 telltale heart reviver 割草 ×3 + 蜘蛛腺体 ×1，并消耗制作人生命。 联机复活队友。 ">
+      <div class="main">
+        <div class="title"><span>告密的心</span><small>Telltale Heart</small></div>
+        <div class="meta"><span>分类：通用装备</span><span>数量：5</span><span>Prefab：reviver</span></div>
+        <div class="recipe"><b>合成/获取：</b>割草 ×3 + 蜘蛛腺体 ×1，并消耗制作人生命。</div>
+        <div class="use"><b>用途：</b>联机复活队友。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;reviver&quot;, 5)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="05 装备、回血与季节" data-group="通用装备" data-search="05 装备、回血与季节 通用装备 生命护符 life giving amulet amulet 金子 ×3 + 噩梦燃料 ×2 + 红宝石 ×1。 死亡复活或佩戴回血。 ">
+      <div class="main">
+        <div class="title"><span>生命护符</span><small>Life Giving Amulet</small></div>
+        <div class="meta"><span>分类：通用装备</span><span>数量：1</span><span>Prefab：amulet</span></div>
+        <div class="recipe"><b>合成/获取：</b>金子 ×3 + 噩梦燃料 ×2 + 红宝石 ×1。</div>
+        <div class="use"><b>用途：</b>死亡复活或佩戴回血。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;amulet&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="05 装备、回血与季节" data-group="通用装备" data-search="05 装备、回血与季节 通用装备 暖石 thermal stone heatrock 石头 ×10 + 燧石 ×3 + 鹤嘴锄 ×1。 冬季保暖、夏季降温。 ">
+      <div class="main">
+        <div class="title"><span>暖石</span><small>Thermal Stone</small></div>
+        <div class="meta"><span>分类：通用装备</span><span>数量：1</span><span>Prefab：heatrock</span></div>
+        <div class="recipe"><b>合成/获取：</b>石头 ×10 + 燧石 ×3 + 鹤嘴锄 ×1。</div>
+        <div class="use"><b>用途：</b>冬季保暖、夏季降温。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;heatrock&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="05 装备、回血与季节" data-group="通用装备" data-search="05 装备、回血与季节 通用装备 眼球伞 eyebrella eyebrellahat 鹿角怪眼球 ×1 + 树枝 ×15 + 骨片 ×4。 防雨、防暑。 ">
+      <div class="main">
+        <div class="title"><span>眼球伞</span><small>Eyebrella</small></div>
+        <div class="meta"><span>分类：通用装备</span><span>数量：1</span><span>Prefab：eyebrellahat</span></div>
+        <div class="recipe"><b>合成/获取：</b>鹿角怪眼球 ×1 + 树枝 ×15 + 骨片 ×4。</div>
+        <div class="use"><b>用途：</b>防雨、防暑。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;eyebrellahat&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="05 装备、回血与季节" data-group="通用装备" data-search="05 装备、回血与季节 通用装备 冬帽 winter hat winterhat 牛毛 ×4 + 蜘蛛丝 ×4。 冬季保暖。 ">
+      <div class="main">
+        <div class="title"><span>冬帽</span><small>Winter Hat</small></div>
+        <div class="meta"><span>分类：通用装备</span><span>数量：1</span><span>Prefab：winterhat</span></div>
+        <div class="recipe"><b>合成/获取：</b>牛毛 ×4 + 蜘蛛丝 ×4。</div>
+        <div class="use"><b>用途：</b>冬季保暖。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;winterhat&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="05 装备、回血与季节" data-group="通用装备" data-search="05 装备、回血与季节 通用装备 牛帽 beefalo hat beefalohat 牛毛 ×8 + 牛角 ×1。 强保暖，牛发情期防仇恨。 ">
+      <div class="main">
+        <div class="title"><span>牛帽</span><small>Beefalo Hat</small></div>
+        <div class="meta"><span>分类：通用装备</span><span>数量：1</span><span>Prefab：beefalohat</span></div>
+        <div class="recipe"><b>合成/获取：</b>牛毛 ×8 + 牛角 ×1。</div>
+        <div class="use"><b>用途：</b>强保暖，牛发情期防仇恨。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;beefalohat&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Willow 薇洛" data-search="06 角色特殊道具 willow 薇洛 薇洛打火机 willow&#x27;s lighter lighter 薇洛专属，出生自带；部分版本可制作。 稳定点火和照明。 ">
+      <div class="main">
+        <div class="title"><span>薇洛打火机</span><small>Willow&#x27;s Lighter</small></div>
+        <div class="meta"><span>分类：Willow 薇洛</span><span>数量：1</span><span>Prefab：lighter</span></div>
+        <div class="recipe"><b>合成/获取：</b>薇洛专属，出生自带；部分版本可制作。</div>
+        <div class="use"><b>用途：</b>稳定点火和照明。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;lighter&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Willow 薇洛" data-search="06 角色特殊道具 willow 薇洛 伯尼 bernie bernie_inactive 薇洛专属，通常需要胡须、牛毛、蜘蛛丝等材料制作。 低理智时保护薇洛、吸引敌人。 ">
+      <div class="main">
+        <div class="title"><span>伯尼</span><small>Bernie</small></div>
+        <div class="meta"><span>分类：Willow 薇洛</span><span>数量：1</span><span>Prefab：bernie_inactive</span></div>
+        <div class="recipe"><b>合成/获取：</b>薇洛专属，通常需要胡须、牛毛、蜘蛛丝等材料制作。</div>
+        <div class="use"><b>用途：</b>低理智时保护薇洛、吸引敌人。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;bernie_inactive&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wendy 温蒂" data-search="06 角色特殊道具 wendy 温蒂 阿比盖尔之花 abigail&#x27;s flower abigail_flower 温蒂专属，出生自带；用于召唤阿比盖尔。 召唤/安抚阿比盖尔。 ">
+      <div class="main">
+        <div class="title"><span>阿比盖尔之花</span><small>Abigail&#x27;s Flower</small></div>
+        <div class="meta"><span>分类：Wendy 温蒂</span><span>数量：1</span><span>Prefab：abigail_flower</span></div>
+        <div class="recipe"><b>合成/获取：</b>温蒂专属，出生自带；用于召唤阿比盖尔。</div>
+        <div class="use"><b>用途：</b>召唤/安抚阿比盖尔。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;abigail_flower&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wendy 温蒂" data-search="06 角色特殊道具 wendy 温蒂 灵体草药 sisturn / elixirs ghostlyelixir_slowregen 温蒂可制作不同灵体药剂；不同药剂配方不同。 强化或治疗阿比盖尔。 本行给出常用缓慢恢复药剂。">
+      <div class="main">
+        <div class="title"><span>灵体草药</span><small>Sisturn / Elixirs</small></div>
+        <div class="meta"><span>分类：Wendy 温蒂</span><span>数量：5</span><span>Prefab：ghostlyelixir_slowregen</span></div>
+        <div class="recipe"><b>合成/获取：</b>温蒂可制作不同灵体药剂；不同药剂配方不同。</div>
+        <div class="use"><b>用途：</b>强化或治疗阿比盖尔。</div>
+        <div class="note-inline">本行给出常用缓慢恢复药剂。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;ghostlyelixir_slowregen&quot;, 5)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Walter 沃尔特" data-search="06 角色特殊道具 walter 沃尔特 可靠弹弓 trusty slingshot slingshot 沃尔特专属，出生自带；通常可重新制作。 远程武器，需要弹弓弹药。 ">
+      <div class="main">
+        <div class="title"><span>可靠弹弓</span><small>Trusty Slingshot</small></div>
+        <div class="meta"><span>分类：Walter 沃尔特</span><span>数量：1</span><span>Prefab：slingshot</span></div>
+        <div class="recipe"><b>合成/获取：</b>沃尔特专属，出生自带；通常可重新制作。</div>
+        <div class="use"><b>用途：</b>远程武器，需要弹弓弹药。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;slingshot&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Walter 沃尔特" data-search="06 角色特殊道具 walter 沃尔特 松树先锋帽 pinetree pioneer hat walterhat 沃尔特专属帽子。 沃尔特身份装备。 ">
+      <div class="main">
+        <div class="title"><span>松树先锋帽</span><small>Pinetree Pioneer Hat</small></div>
+        <div class="meta"><span>分类：Walter 沃尔特</span><span>数量：1</span><span>Prefab：walterhat</span></div>
+        <div class="recipe"><b>合成/获取：</b>沃尔特专属帽子。</div>
+        <div class="use"><b>用途：</b>沃尔特身份装备。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;walterhat&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Walter 沃尔特" data-search="06 角色特殊道具 walter 沃尔特 弹药袋 ammo pouch slingshotammo_container 沃尔特弹药收纳道具。 存放弹弓弹药。 若版本中 prefab 名不同，请用搜索定位“ammo pouch”。">
+      <div class="main">
+        <div class="title"><span>弹药袋</span><small>Ammo Pouch</small></div>
+        <div class="meta"><span>分类：Walter 沃尔特</span><span>数量：1</span><span>Prefab：slingshotammo_container</span></div>
+        <div class="recipe"><b>合成/获取：</b>沃尔特弹药收纳道具。</div>
+        <div class="use"><b>用途：</b>存放弹弓弹药。</div>
+        <div class="note-inline">若版本中 prefab 名不同，请用搜索定位“Ammo Pouch”。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;slingshotammo_container&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Walter 沃尔特" data-search="06 角色特殊道具 walter 沃尔特 石子弹 pebbles slingshotammo_rock 常见配方：石头制作，一次产出若干。 弹弓基础弹药。 ">
+      <div class="main">
+        <div class="title"><span>石子弹</span><small>Pebbles</small></div>
+        <div class="meta"><span>分类：Walter 沃尔特</span><span>数量：10</span><span>Prefab：slingshotammo_rock</span></div>
+        <div class="recipe"><b>合成/获取：</b>常见配方：石头制作，一次产出若干。</div>
+        <div class="use"><b>用途：</b>弹弓基础弹药。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;slingshotammo_rock&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Walter 沃尔特" data-search="06 角色特殊道具 walter 沃尔特 金弹 gold rounds slingshotammo_gold 常见配方：金子制作，一次产出若干。 比石子弹伤害更高。 ">
+      <div class="main">
+        <div class="title"><span>金弹</span><small>Gold Rounds</small></div>
+        <div class="meta"><span>分类：Walter 沃尔特</span><span>数量：10</span><span>Prefab：slingshotammo_gold</span></div>
+        <div class="recipe"><b>合成/获取：</b>常见配方：金子制作，一次产出若干。</div>
+        <div class="use"><b>用途：</b>比石子弹伤害更高。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;slingshotammo_gold&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Walter 沃尔特" data-search="06 角色特殊道具 walter 沃尔特 大理石弹 marbles slingshotammo_marble 常见配方：大理石制作，一次产出若干。 更高伤害弹药。 ">
+      <div class="main">
+        <div class="title"><span>大理石弹</span><small>Marbles</small></div>
+        <div class="meta"><span>分类：Walter 沃尔特</span><span>数量：10</span><span>Prefab：slingshotammo_marble</span></div>
+        <div class="recipe"><b>合成/获取：</b>常见配方：大理石制作，一次产出若干。</div>
+        <div class="use"><b>用途：</b>更高伤害弹药。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;slingshotammo_marble&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Walter 沃尔特" data-search="06 角色特殊道具 walter 沃尔特 便便弹 poop pellets slingshotammo_poop 常见配方：便便制作。 带特殊效果的弹药。 ">
+      <div class="main">
+        <div class="title"><span>便便弹</span><small>Poop Pellets</small></div>
+        <div class="meta"><span>分类：Walter 沃尔特</span><span>数量：10</span><span>Prefab：slingshotammo_poop</span></div>
+        <div class="recipe"><b>合成/获取：</b>常见配方：便便制作。</div>
+        <div class="use"><b>用途：</b>带特殊效果的弹药。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;slingshotammo_poop&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Walter 沃尔特" data-search="06 角色特殊道具 walter 沃尔特 冰冻弹 freeze rounds slingshotammo_freeze 常见配方：蓝宝石/月岩等高级材料。 让目标冻结或积累冻结效果。 ">
+      <div class="main">
+        <div class="title"><span>冰冻弹</span><small>Freeze Rounds</small></div>
+        <div class="meta"><span>分类：Walter 沃尔特</span><span>数量：10</span><span>Prefab：slingshotammo_freeze</span></div>
+        <div class="recipe"><b>合成/获取：</b>常见配方：蓝宝石/月岩等高级材料。</div>
+        <div class="use"><b>用途：</b>让目标冻结或积累冻结效果。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;slingshotammo_freeze&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Walter 沃尔特" data-search="06 角色特殊道具 walter 沃尔特 减速弹 slow-down rounds slingshotammo_slow 常见配方：紫宝石/月岩等高级材料。 让目标减速。 ">
+      <div class="main">
+        <div class="title"><span>减速弹</span><small>Slow-Down Rounds</small></div>
+        <div class="meta"><span>分类：Walter 沃尔特</span><span>数量：10</span><span>Prefab：slingshotammo_slow</span></div>
+        <div class="recipe"><b>合成/获取：</b>常见配方：紫宝石/月岩等高级材料。</div>
+        <div class="use"><b>用途：</b>让目标减速。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;slingshotammo_slow&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Walter 沃尔特" data-search="06 角色特殊道具 walter 沃尔特 铥矿弹 cursed / thulecite rounds slingshotammo_thulecite 常见配方：铥矿制作。 高阶弹药。 ">
+      <div class="main">
+        <div class="title"><span>铥矿弹</span><small>Cursed / Thulecite Rounds</small></div>
+        <div class="meta"><span>分类：Walter 沃尔特</span><span>数量：10</span><span>Prefab：slingshotammo_thulecite</span></div>
+        <div class="recipe"><b>合成/获取：</b>常见配方：铥矿制作。</div>
+        <div class="use"><b>用途：</b>高阶弹药。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;slingshotammo_thulecite&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Winona 薇诺娜" data-search="06 角色特殊道具 winona 薇诺娜 可靠胶带 trusty tape sewing_tape 草、蜘蛛丝等基础材料。 快速修理衣物、防具和薇诺娜工程物。 ">
+      <div class="main">
+        <div class="title"><span>可靠胶带</span><small>Trusty Tape</small></div>
+        <div class="meta"><span>分类：Winona 薇诺娜</span><span>数量：10</span><span>Prefab：sewing_tape</span></div>
+        <div class="recipe"><b>合成/获取：</b>草、蜘蛛丝等基础材料。</div>
+        <div class="use"><b>用途：</b>快速修理衣物、防具和薇诺娜工程物。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;sewing_tape&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Winona 薇诺娜" data-search="06 角色特殊道具 winona 薇诺娜 投石机 winona&#x27;s catapult winona_catapult 薇诺娜工程建筑，需要胶带、电子元件等。 自动攻击范围内敌人。 建筑类需要实体时可用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>投石机</span><small>Winona&#x27;s Catapult</small></div>
+        <div class="meta"><span>分类：Winona 薇诺娜</span><span>数量：1</span><span>Prefab：winona_catapult</span></div>
+        <div class="recipe"><b>合成/获取：</b>薇诺娜工程建筑，需要胶带、电子元件等。</div>
+        <div class="use"><b>用途：</b>自动攻击范围内敌人。</div>
+        <div class="note-inline">建筑类需要实体时可用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;winona_catapult&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Winona 薇诺娜" data-search="06 角色特殊道具 winona 薇诺娜 聚光灯 winona&#x27;s spotlight winona_spotlight 薇诺娜工程建筑，需要胶带、电子元件等。 照明。 建筑类需要实体时可用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>聚光灯</span><small>Winona&#x27;s Spotlight</small></div>
+        <div class="meta"><span>分类：Winona 薇诺娜</span><span>数量：1</span><span>Prefab：winona_spotlight</span></div>
+        <div class="recipe"><b>合成/获取：</b>薇诺娜工程建筑，需要胶带、电子元件等。</div>
+        <div class="use"><b>用途：</b>照明。</div>
+        <div class="note-inline">建筑类需要实体时可用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;winona_spotlight&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Winona 薇诺娜" data-search="06 角色特殊道具 winona 薇诺娜 小发电机 winona&#x27;s generator winona_battery_low 薇诺娜工程建筑。 给投石机/聚光灯供电。 建筑类需要实体时可用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>小发电机</span><small>Winona&#x27;s Generator</small></div>
+        <div class="meta"><span>分类：Winona 薇诺娜</span><span>数量：1</span><span>Prefab：winona_battery_low</span></div>
+        <div class="recipe"><b>合成/获取：</b>薇诺娜工程建筑。</div>
+        <div class="use"><b>用途：</b>给投石机/聚光灯供电。</div>
+        <div class="note-inline">建筑类需要实体时可用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;winona_battery_low&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Winona 薇诺娜" data-search="06 角色特殊道具 winona 薇诺娜 宝石发电机 winona&#x27;s g.e.m.erator winona_battery_high 薇诺娜高级工程建筑，需要宝石。 高效供电。 建筑类需要实体时可用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>宝石发电机</span><small>Winona&#x27;s G.E.M.erator</small></div>
+        <div class="meta"><span>分类：Winona 薇诺娜</span><span>数量：1</span><span>Prefab：winona_battery_high</span></div>
+        <div class="recipe"><b>合成/获取：</b>薇诺娜高级工程建筑，需要宝石。</div>
+        <div class="use"><b>用途：</b>高效供电。</div>
+        <div class="note-inline">建筑类需要实体时可用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;winona_battery_high&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Warly 沃利" data-search="06 角色特殊道具 warly 沃利 便携锅 portable crock pot portablecookpot_item 沃利专属，可部署。 随身烹饪锅。 ">
+      <div class="main">
+        <div class="title"><span>便携锅</span><small>Portable Crock Pot</small></div>
+        <div class="meta"><span>分类：Warly 沃利</span><span>数量：1</span><span>Prefab：portablecookpot_item</span></div>
+        <div class="recipe"><b>合成/获取：</b>沃利专属，可部署。</div>
+        <div class="use"><b>用途：</b>随身烹饪锅。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;portablecookpot_item&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Warly 沃利" data-search="06 角色特殊道具 warly 沃利 便携研磨器 portable grinding mill portableblender_item 沃利专属，可部署。 制作调味粉。 ">
+      <div class="main">
+        <div class="title"><span>便携研磨器</span><small>Portable Grinding Mill</small></div>
+        <div class="meta"><span>分类：Warly 沃利</span><span>数量：1</span><span>Prefab：portableblender_item</span></div>
+        <div class="recipe"><b>合成/获取：</b>沃利专属，可部署。</div>
+        <div class="use"><b>用途：</b>制作调味粉。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;portableblender_item&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Warly 沃利" data-search="06 角色特殊道具 warly 沃利 便携调味站 portable seasoning station portablespicer_item 沃利专属，可部署。 给料理加调味。 ">
+      <div class="main">
+        <div class="title"><span>便携调味站</span><small>Portable Seasoning Station</small></div>
+        <div class="meta"><span>分类：Warly 沃利</span><span>数量：1</span><span>Prefab：portablespicer_item</span></div>
+        <div class="recipe"><b>合成/获取：</b>沃利专属，可部署。</div>
+        <div class="use"><b>用途：</b>给料理加调味。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;portablespicer_item&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Warly 沃利" data-search="06 角色特殊道具 warly 沃利 大蒜粉 garlic powder spice_garlic 大蒜在便携研磨器加工。 调味后提升防御。 ">
+      <div class="main">
+        <div class="title"><span>大蒜粉</span><small>Garlic Powder</small></div>
+        <div class="meta"><span>分类：Warly 沃利</span><span>数量：10</span><span>Prefab：spice_garlic</span></div>
+        <div class="recipe"><b>合成/获取：</b>大蒜在便携研磨器加工。</div>
+        <div class="use"><b>用途：</b>调味后提升防御。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;spice_garlic&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Warly 沃利" data-search="06 角色特殊道具 warly 沃利 蜂蜜水晶 honey crystals spice_sugar 蜂蜜在便携研磨器加工。 调味后提升采集/工作效率。 ">
+      <div class="main">
+        <div class="title"><span>蜂蜜水晶</span><small>Honey Crystals</small></div>
+        <div class="meta"><span>分类：Warly 沃利</span><span>数量：10</span><span>Prefab：spice_sugar</span></div>
+        <div class="recipe"><b>合成/获取：</b>蜂蜜在便携研磨器加工。</div>
+        <div class="use"><b>用途：</b>调味后提升采集/工作效率。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;spice_sugar&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Warly 沃利" data-search="06 角色特殊道具 warly 沃利 辣椒粉 chili flakes spice_chili 辣椒在便携研磨器加工。 调味后提升伤害。 ">
+      <div class="main">
+        <div class="title"><span>辣椒粉</span><small>Chili Flakes</small></div>
+        <div class="meta"><span>分类：Warly 沃利</span><span>数量：10</span><span>Prefab：spice_chili</span></div>
+        <div class="recipe"><b>合成/获取：</b>辣椒在便携研磨器加工。</div>
+        <div class="use"><b>用途：</b>调味后提升伤害。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;spice_chili&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Warly 沃利" data-search="06 角色特殊道具 warly 沃利 调味盐 seasoning salt spice_salt 盐晶在便携研磨器加工。 调味后提升回血。 ">
+      <div class="main">
+        <div class="title"><span>调味盐</span><small>Seasoning Salt</small></div>
+        <div class="meta"><span>分类：Warly 沃利</span><span>数量：10</span><span>Prefab：spice_salt</span></div>
+        <div class="recipe"><b>合成/获取：</b>盐晶在便携研磨器加工。</div>
+        <div class="use"><b>用途：</b>调味后提升回血。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;spice_salt&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wigfrid 女武神" data-search="06 角色特殊道具 wigfrid 女武神 战斗长矛 battle spear spear_wathgrithr 女武神专属，金子、树枝、燧石等。 女武神专属武器。 ">
+      <div class="main">
+        <div class="title"><span>战斗长矛</span><small>Battle Spear</small></div>
+        <div class="meta"><span>分类：Wigfrid 女武神</span><span>数量：1</span><span>Prefab：spear_wathgrithr</span></div>
+        <div class="recipe"><b>合成/获取：</b>女武神专属，金子、树枝、燧石等。</div>
+        <div class="use"><b>用途：</b>女武神专属武器。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;spear_wathgrithr&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wigfrid 女武神" data-search="06 角色特殊道具 wigfrid 女武神 战斗头盔 battle helm wathgrithrhat 女武神专属，金子、石头等。 女武神专属防具。 ">
+      <div class="main">
+        <div class="title"><span>战斗头盔</span><small>Battle Helm</small></div>
+        <div class="meta"><span>分类：Wigfrid 女武神</span><span>数量：1</span><span>Prefab：wathgrithrhat</span></div>
+        <div class="recipe"><b>合成/获取：</b>女武神专属，金子、石头等。</div>
+        <div class="use"><b>用途：</b>女武神专属防具。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;wathgrithrhat&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wigfrid 女武神" data-search="06 角色特殊道具 wigfrid 女武神 战歌：耐久 weaponized warble battlesong_durability 女武神战歌，需对应材料制作。 增强团队战斗。 ">
+      <div class="main">
+        <div class="title"><span>战歌：耐久</span><small>Weaponized Warble</small></div>
+        <div class="meta"><span>分类：Wigfrid 女武神</span><span>数量：1</span><span>Prefab：battlesong_durability</span></div>
+        <div class="recipe"><b>合成/获取：</b>女武神战歌，需对应材料制作。</div>
+        <div class="use"><b>用途：</b>增强团队战斗。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;battlesong_durability&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wigfrid 女武神" data-search="06 角色特殊道具 wigfrid 女武神 战歌：回血 heartrending ballad battlesong_healthgain 女武神战歌，需对应材料制作。 攻击回血相关。 ">
+      <div class="main">
+        <div class="title"><span>战歌：回血</span><small>Heartrending Ballad</small></div>
+        <div class="meta"><span>分类：Wigfrid 女武神</span><span>数量：1</span><span>Prefab：battlesong_healthgain</span></div>
+        <div class="recipe"><b>合成/获取：</b>女武神战歌，需对应材料制作。</div>
+        <div class="use"><b>用途：</b>攻击回血相关。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;battlesong_healthgain&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wigfrid 女武神" data-search="06 角色特殊道具 wigfrid 女武神 战歌：回理智 clear minded cadenza battlesong_sanitygain 女武神战歌，需对应材料制作。 攻击回理智相关。 ">
+      <div class="main">
+        <div class="title"><span>战歌：回理智</span><small>Clear Minded Cadenza</small></div>
+        <div class="meta"><span>分类：Wigfrid 女武神</span><span>数量：1</span><span>Prefab：battlesong_sanitygain</span></div>
+        <div class="recipe"><b>合成/获取：</b>女武神战歌，需对应材料制作。</div>
+        <div class="use"><b>用途：</b>攻击回理智相关。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;battlesong_sanitygain&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wormwood 沃姆伍德" data-search="06 角色特殊道具 wormwood 沃姆伍德 堆肥包 compost wrap compostwrap 粪肥、腐烂物等。 沃姆伍德回血、植物相关。 ">
+      <div class="main">
+        <div class="title"><span>堆肥包</span><small>Compost Wrap</small></div>
+        <div class="meta"><span>分类：Wormwood 沃姆伍德</span><span>数量：10</span><span>Prefab：compostwrap</span></div>
+        <div class="recipe"><b>合成/获取：</b>粪肥、腐烂物等。</div>
+        <div class="use"><b>用途：</b>沃姆伍德回血、植物相关。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;compostwrap&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wormwood 沃姆伍德" data-search="06 角色特殊道具 wormwood 沃姆伍德 荆棘甲 bramble husk armor_bramble 活木、骨片等。 受击反伤，适合刷群怪。 ">
+      <div class="main">
+        <div class="title"><span>荆棘甲</span><small>Bramble Husk</small></div>
+        <div class="meta"><span>分类：Wormwood 沃姆伍德</span><span>数量：1</span><span>Prefab：armor_bramble</span></div>
+        <div class="recipe"><b>合成/获取：</b>活木、骨片等。</div>
+        <div class="use"><b>用途：</b>受击反伤，适合刷群怪。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;armor_bramble&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wormwood 沃姆伍德" data-search="06 角色特殊道具 wormwood 沃姆伍德 荆棘陷阱 bramble trap trap_bramble 活木、蜂刺等。 触发后伤害敌人。 ">
+      <div class="main">
+        <div class="title"><span>荆棘陷阱</span><small>Bramble Trap</small></div>
+        <div class="meta"><span>分类：Wormwood 沃姆伍德</span><span>数量：5</span><span>Prefab：trap_bramble</span></div>
+        <div class="recipe"><b>合成/获取：</b>活木、蜂刺等。</div>
+        <div class="use"><b>用途：</b>触发后伤害敌人。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;trap_bramble&quot;, 5)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wortox 沃拓克斯" data-search="06 角色特殊道具 wortox 沃拓克斯 灵魂 soul wortox_soul 生物死亡时沃拓克斯可收集。 治疗、传送、进食。 ">
+      <div class="main">
+        <div class="title"><span>灵魂</span><small>Soul</small></div>
+        <div class="meta"><span>分类：Wortox 沃拓克斯</span><span>数量：20</span><span>Prefab：wortox_soul</span></div>
+        <div class="recipe"><b>合成/获取：</b>生物死亡时沃拓克斯可收集。</div>
+        <div class="use"><b>用途：</b>治疗、传送、进食。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;wortox_soul&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wurt 沃特" data-search="06 角色特殊道具 wurt 沃特 聪明伪装 clever disguise mermhat 鱼、树枝等相关材料。 让非沃特角色与鱼人互动更安全。 ">
+      <div class="main">
+        <div class="title"><span>聪明伪装</span><small>Clever Disguise</small></div>
+        <div class="meta"><span>分类：Wurt 沃特</span><span>数量：1</span><span>Prefab：mermhat</span></div>
+        <div class="recipe"><b>合成/获取：</b>鱼、树枝等相关材料。</div>
+        <div class="use"><b>用途：</b>让非沃特角色与鱼人互动更安全。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;mermhat&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wurt 沃特" data-search="06 角色特殊道具 wurt 沃特 鱼人工艺屋 craftsmerm house mermhouse_crafted 木板、鱼等。 建造鱼人房。 建筑类需要实体时可用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>鱼人工艺屋</span><small>Craftsmerm House</small></div>
+        <div class="meta"><span>分类：Wurt 沃特</span><span>数量：1</span><span>Prefab：mermhouse_crafted</span></div>
+        <div class="recipe"><b>合成/获取：</b>木板、鱼等。</div>
+        <div class="use"><b>用途：</b>建造鱼人房。</div>
+        <div class="note-inline">建筑类需要实体时可用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;mermhouse_crafted&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wurt 沃特" data-search="06 角色特殊道具 wurt 沃特 鱼人堡垒 merm flort-ifications mermwatchtower 木板、鱼等。 生成战斗鱼人守卫。 建筑类需要实体时可用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>鱼人堡垒</span><small>Merm Flort-ifications</small></div>
+        <div class="meta"><span>分类：Wurt 沃特</span><span>数量：1</span><span>Prefab：mermwatchtower</span></div>
+        <div class="recipe"><b>合成/获取：</b>木板、鱼等。</div>
+        <div class="use"><b>用途：</b>生成战斗鱼人守卫。</div>
+        <div class="note-inline">建筑类需要实体时可用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;mermwatchtower&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wurt 沃特" data-search="06 角色特殊道具 wurt 沃特 皇家地毯 royal tapestry mermthrone 沃特鱼人王相关建筑。 鱼人王系统。 建筑类需要实体时可用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>皇家地毯</span><small>Royal Tapestry</small></div>
+        <div class="meta"><span>分类：Wurt 沃特</span><span>数量：1</span><span>Prefab：mermthrone</span></div>
+        <div class="recipe"><b>合成/获取：</b>沃特鱼人王相关建筑。</div>
+        <div class="use"><b>用途：</b>鱼人王系统。</div>
+        <div class="note-inline">建筑类需要实体时可用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;mermthrone&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wanda 旺达" data-search="06 角色特殊道具 wanda 旺达 时间碎片 time pieces pocketwatch_parts 旺达专属核心材料。 制作怀表。 ">
+      <div class="main">
+        <div class="title"><span>时间碎片</span><small>Time Pieces</small></div>
+        <div class="meta"><span>分类：Wanda 旺达</span><span>数量：20</span><span>Prefab：pocketwatch_parts</span></div>
+        <div class="recipe"><b>合成/获取：</b>旺达专属核心材料。</div>
+        <div class="use"><b>用途：</b>制作怀表。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;pocketwatch_parts&quot;, 20)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wanda 旺达" data-search="06 角色特殊道具 wanda 旺达 倒走表 ageless watch pocketwatch_heal 时间碎片、金子等。 回复旺达年龄/生命状态。 ">
+      <div class="main">
+        <div class="title"><span>倒走表</span><small>Ageless Watch</small></div>
+        <div class="meta"><span>分类：Wanda 旺达</span><span>数量：1</span><span>Prefab：pocketwatch_heal</span></div>
+        <div class="recipe"><b>合成/获取：</b>时间碎片、金子等。</div>
+        <div class="use"><b>用途：</b>回复旺达年龄/生命状态。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;pocketwatch_heal&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wanda 旺达" data-search="06 角色特殊道具 wanda 旺达 第二次机会表 second chance watch pocketwatch_revive 时间碎片、宝石等。 复活玩家。 ">
+      <div class="main">
+        <div class="title"><span>第二次机会表</span><small>Second Chance Watch</small></div>
+        <div class="meta"><span>分类：Wanda 旺达</span><span>数量：1</span><span>Prefab：pocketwatch_revive</span></div>
+        <div class="recipe"><b>合成/获取：</b>时间碎片、宝石等。</div>
+        <div class="use"><b>用途：</b>复活玩家。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;pocketwatch_revive&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wanda 旺达" data-search="06 角色特殊道具 wanda 旺达 溯源表 backtrek watch pocketwatch_recall 时间碎片等。 返回记录位置。 ">
+      <div class="main">
+        <div class="title"><span>溯源表</span><small>Backtrek Watch</small></div>
+        <div class="meta"><span>分类：Wanda 旺达</span><span>数量：1</span><span>Prefab：pocketwatch_recall</span></div>
+        <div class="recipe"><b>合成/获取：</b>时间碎片等。</div>
+        <div class="use"><b>用途：</b>返回记录位置。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;pocketwatch_recall&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wanda 旺达" data-search="06 角色特殊道具 wanda 旺达 传送表 rift watch pocketwatch_portal 时间碎片、紫宝石等。 团队传送。 ">
+      <div class="main">
+        <div class="title"><span>传送表</span><small>Rift Watch</small></div>
+        <div class="meta"><span>分类：Wanda 旺达</span><span>数量：1</span><span>Prefab：pocketwatch_portal</span></div>
+        <div class="recipe"><b>合成/获取：</b>时间碎片、紫宝石等。</div>
+        <div class="use"><b>用途：</b>团队传送。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;pocketwatch_portal&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wanda 旺达" data-search="06 角色特殊道具 wanda 旺达 警告表 alarming clock pocketwatch_weapon 时间碎片、噩梦燃料等。 旺达专属武器。 ">
+      <div class="main">
+        <div class="title"><span>警告表</span><small>Alarming Clock</small></div>
+        <div class="meta"><span>分类：Wanda 旺达</span><span>数量：1</span><span>Prefab：pocketwatch_weapon</span></div>
+        <div class="recipe"><b>合成/获取：</b>时间碎片、噩梦燃料等。</div>
+        <div class="use"><b>用途：</b>旺达专属武器。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;pocketwatch_weapon&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="WX-78" data-search="06 角色特殊道具 wx-78 生物扫描仪 bio scanalyzer wx78_scanner_item wx-78 专属扫描道具。 扫描生物解锁电路。 ">
+      <div class="main">
+        <div class="title"><span>生物扫描仪</span><small>Bio Scanalyzer</small></div>
+        <div class="meta"><span>分类：WX-78</span><span>数量：1</span><span>Prefab：wx78_scanner_item</span></div>
+        <div class="recipe"><b>合成/获取：</b>WX-78 专属扫描道具。</div>
+        <div class="use"><b>用途：</b>扫描生物解锁电路。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;wx78_scanner_item&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="WX-78" data-search="06 角色特殊道具 wx-78 电路提取器 circuit extractor wx78_moduleremover wx-78 专属工具。 拆卸已安装电路。 ">
+      <div class="main">
+        <div class="title"><span>电路提取器</span><small>Circuit Extractor</small></div>
+        <div class="meta"><span>分类：WX-78</span><span>数量：1</span><span>Prefab：wx78_moduleremover</span></div>
+        <div class="recipe"><b>合成/获取：</b>WX-78 专属工具。</div>
+        <div class="use"><b>用途：</b>拆卸已安装电路。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;wx78_moduleremover&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="WX-78" data-search="06 角色特殊道具 wx-78 生命电路 hardy circuit wx78module_maxhealth 扫描后解锁，需对应电子材料。 提高最大生命。 ">
+      <div class="main">
+        <div class="title"><span>生命电路</span><small>Hardy Circuit</small></div>
+        <div class="meta"><span>分类：WX-78</span><span>数量：1</span><span>Prefab：wx78module_maxhealth</span></div>
+        <div class="recipe"><b>合成/获取：</b>扫描后解锁，需对应电子材料。</div>
+        <div class="use"><b>用途：</b>提高最大生命。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;wx78module_maxhealth&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="WX-78" data-search="06 角色特殊道具 wx-78 速度电路 acceleration circuit wx78module_movespeed 扫描后解锁，需对应材料。 提高移动速度。 ">
+      <div class="main">
+        <div class="title"><span>速度电路</span><small>Acceleration Circuit</small></div>
+        <div class="meta"><span>分类：WX-78</span><span>数量：1</span><span>Prefab：wx78module_movespeed</span></div>
+        <div class="recipe"><b>合成/获取：</b>扫描后解锁，需对应材料。</div>
+        <div class="use"><b>用途：</b>提高移动速度。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;wx78module_movespeed&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="WX-78" data-search="06 角色特殊道具 wx-78 夜视电路 optoelectronic circuit wx78module_nightvision 扫描后解锁，需对应材料。 夜视。 ">
+      <div class="main">
+        <div class="title"><span>夜视电路</span><small>Optoelectronic Circuit</small></div>
+        <div class="meta"><span>分类：WX-78</span><span>数量：1</span><span>Prefab：wx78module_nightvision</span></div>
+        <div class="recipe"><b>合成/获取：</b>扫描后解锁，需对应材料。</div>
+        <div class="use"><b>用途：</b>夜视。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;wx78module_nightvision&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Webber 韦伯" data-search="06 角色特殊道具 webber 韦伯 蜘蛛卵 spider eggs spidereggsack 拆三级蜘蛛巢获得，韦伯可更好利用。 种植蜘蛛巢。 ">
+      <div class="main">
+        <div class="title"><span>蜘蛛卵</span><small>Spider Eggs</small></div>
+        <div class="meta"><span>分类：Webber 韦伯</span><span>数量：1</span><span>Prefab：spidereggsack</span></div>
+        <div class="recipe"><b>合成/获取：</b>拆三级蜘蛛巢获得，韦伯可更好利用。</div>
+        <div class="use"><b>用途：</b>种植蜘蛛巢。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;spidereggsack&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Webber 韦伯" data-search="06 角色特殊道具 webber 韦伯 韦伯口哨 webby whistle spider_whistle 韦伯专属。 指挥蜘蛛。 ">
+      <div class="main">
+        <div class="title"><span>韦伯口哨</span><small>Webby Whistle</small></div>
+        <div class="meta"><span>分类：Webber 韦伯</span><span>数量：1</span><span>Prefab：spider_whistle</span></div>
+        <div class="recipe"><b>合成/获取：</b>韦伯专属。</div>
+        <div class="use"><b>用途：</b>指挥蜘蛛。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;spider_whistle&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Woodie 伍迪" data-search="06 角色特殊道具 woodie 伍迪 露西斧 lucy the axe lucy 伍迪出生自带。 快速砍树。 ">
+      <div class="main">
+        <div class="title"><span>露西斧</span><small>Lucy the Axe</small></div>
+        <div class="meta"><span>分类：Woodie 伍迪</span><span>数量：1</span><span>Prefab：lucy</span></div>
+        <div class="recipe"><b>合成/获取：</b>伍迪出生自带。</div>
+        <div class="use"><b>用途：</b>快速砍树。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;lucy&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Woodie 伍迪" data-search="06 角色特殊道具 woodie 伍迪 俗气海狸像 werebeaver idol wereitem_beaver 怪物肉、草等。 主动变身海狸。 ">
+      <div class="main">
+        <div class="title"><span>俗气海狸像</span><small>Werebeaver Idol</small></div>
+        <div class="meta"><span>分类：Woodie 伍迪</span><span>数量：1</span><span>Prefab：wereitem_beaver</span></div>
+        <div class="recipe"><b>合成/获取：</b>怪物肉、草等。</div>
+        <div class="use"><b>用途：</b>主动变身海狸。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;wereitem_beaver&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Woodie 伍迪" data-search="06 角色特殊道具 woodie 伍迪 俗气驼鹿像 weremoose idol wereitem_moose 怪物肉、草等。 主动变身驼鹿。 ">
+      <div class="main">
+        <div class="title"><span>俗气驼鹿像</span><small>Weremoose Idol</small></div>
+        <div class="meta"><span>分类：Woodie 伍迪</span><span>数量：1</span><span>Prefab：wereitem_moose</span></div>
+        <div class="recipe"><b>合成/获取：</b>怪物肉、草等。</div>
+        <div class="use"><b>用途：</b>主动变身驼鹿。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;wereitem_moose&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Woodie 伍迪" data-search="06 角色特殊道具 woodie 伍迪 俗气鹅像 weregoose idol wereitem_goose 怪物肉、草等。 主动变身鹅。 ">
+      <div class="main">
+        <div class="title"><span>俗气鹅像</span><small>Weregoose Idol</small></div>
+        <div class="meta"><span>分类：Woodie 伍迪</span><span>数量：1</span><span>Prefab：wereitem_goose</span></div>
+        <div class="recipe"><b>合成/获取：</b>怪物肉、草等。</div>
+        <div class="use"><b>用途：</b>主动变身鹅。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;wereitem_goose&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Maxwell 麦斯威尔" data-search="06 角色特殊道具 maxwell 麦斯威尔 暗影秘典 codex umbra waxwelljournal 麦斯威尔出生自带。 召唤暗影随从。 ">
+      <div class="main">
+        <div class="title"><span>暗影秘典</span><small>Codex Umbra</small></div>
+        <div class="meta"><span>分类：Maxwell 麦斯威尔</span><span>数量：1</span><span>Prefab：waxwelljournal</span></div>
+        <div class="recipe"><b>合成/获取：</b>麦斯威尔出生自带。</div>
+        <div class="use"><b>用途：</b>召唤暗影随从。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;waxwelljournal&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wes 韦斯" data-search="06 角色特殊道具 wes 韦斯 气球 balloons balloons_empty 韦斯专属气球魔术。 制造气球效果。 不同版本气球 prefab 较多，本行给基础气球。">
+      <div class="main">
+        <div class="title"><span>气球</span><small>Balloons</small></div>
+        <div class="meta"><span>分类：Wes 韦斯</span><span>数量：10</span><span>Prefab：balloons_empty</span></div>
+        <div class="recipe"><b>合成/获取：</b>韦斯专属气球魔术。</div>
+        <div class="use"><b>用途：</b>制造气球效果。</div>
+        <div class="note-inline">不同版本气球 prefab 较多，本行给基础气球。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;balloons_empty&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wolfgang 沃尔夫冈" data-search="06 角色特殊道具 wolfgang 沃尔夫冈 哑铃 dumbbell dumbbell 石头、树枝等。 锻炼力量值。 ">
+      <div class="main">
+        <div class="title"><span>哑铃</span><small>Dumbbell</small></div>
+        <div class="meta"><span>分类：Wolfgang 沃尔夫冈</span><span>数量：1</span><span>Prefab：dumbbell</span></div>
+        <div class="recipe"><b>合成/获取：</b>石头、树枝等。</div>
+        <div class="use"><b>用途：</b>锻炼力量值。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;dumbbell&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wolfgang 沃尔夫冈" data-search="06 角色特殊道具 wolfgang 沃尔夫冈 金哑铃 golden dumbbell dumbbell_golden 金子等。 更高效锻炼力量值。 ">
+      <div class="main">
+        <div class="title"><span>金哑铃</span><small>Golden Dumbbell</small></div>
+        <div class="meta"><span>分类：Wolfgang 沃尔夫冈</span><span>数量：1</span><span>Prefab：dumbbell_golden</span></div>
+        <div class="recipe"><b>合成/获取：</b>金子等。</div>
+        <div class="use"><b>用途：</b>更高效锻炼力量值。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;dumbbell_golden&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="06 角色特殊道具" data-group="Wolfgang 沃尔夫冈" data-search="06 角色特殊道具 wolfgang 沃尔夫冈 健身房 mighty gym mighty_gym 木板、绳子、石头等。 沃尔夫冈锻炼建筑。 建筑类需要实体时可用 c_spawn。">
+      <div class="main">
+        <div class="title"><span>健身房</span><small>Mighty Gym</small></div>
+        <div class="meta"><span>分类：Wolfgang 沃尔夫冈</span><span>数量：1</span><span>Prefab：mighty_gym</span></div>
+        <div class="recipe"><b>合成/获取：</b>木板、绳子、石头等。</div>
+        <div class="use"><b>用途：</b>沃尔夫冈锻炼建筑。</div>
+        <div class="note-inline">建筑类需要实体时可用 c_spawn。</div>
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;mighty_gym&quot;, 1)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="07 弹药、远程与补充" data-group="通用远程" data-search="07 弹药、远程与补充 通用远程 吹箭 blow dart blowdart_pipe 芦苇 ×2 + 猎犬牙 ×1 + 羽毛 ×1。 一次性远程武器。 ">
+      <div class="main">
+        <div class="title"><span>吹箭</span><small>Blow Dart</small></div>
+        <div class="meta"><span>分类：通用远程</span><span>数量：10</span><span>Prefab：blowdart_pipe</span></div>
+        <div class="recipe"><b>合成/获取：</b>芦苇 ×2 + 猎犬牙 ×1 + 羽毛 ×1。</div>
+        <div class="use"><b>用途：</b>一次性远程武器。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;blowdart_pipe&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="07 弹药、远程与补充" data-group="通用远程" data-search="07 弹药、远程与补充 通用远程 火焰吹箭 fire dart blowdart_fire 芦苇 ×2 + 木炭 ×1 + 红羽毛 ×1。 点燃目标。 ">
+      <div class="main">
+        <div class="title"><span>火焰吹箭</span><small>Fire Dart</small></div>
+        <div class="meta"><span>分类：通用远程</span><span>数量：10</span><span>Prefab：blowdart_fire</span></div>
+        <div class="recipe"><b>合成/获取：</b>芦苇 ×2 + 木炭 ×1 + 红羽毛 ×1。</div>
+        <div class="use"><b>用途：</b>点燃目标。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;blowdart_fire&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="07 弹药、远程与补充" data-group="通用远程" data-search="07 弹药、远程与补充 通用远程 麻醉吹箭 sleep dart blowdart_sleep 芦苇 ×2 + 蜂刺 ×1 + 黑羽毛 ×1。 催眠目标。 ">
+      <div class="main">
+        <div class="title"><span>麻醉吹箭</span><small>Sleep Dart</small></div>
+        <div class="meta"><span>分类：通用远程</span><span>数量：10</span><span>Prefab：blowdart_sleep</span></div>
+        <div class="recipe"><b>合成/获取：</b>芦苇 ×2 + 蜂刺 ×1 + 黑羽毛 ×1。</div>
+        <div class="use"><b>用途：</b>催眠目标。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;blowdart_sleep&quot;, 10)">复制生成代码</button>
+    </article>
+    
+
+    <article class="item-card" data-section="07 弹药、远程与补充" data-group="通用远程" data-search="07 弹药、远程与补充 通用远程 电吹箭 electric dart blowdart_yellow 芦苇 ×2 + 伏特羊角等。 电击伤害。 ">
+      <div class="main">
+        <div class="title"><span>电吹箭</span><small>Electric Dart</small></div>
+        <div class="meta"><span>分类：通用远程</span><span>数量：10</span><span>Prefab：blowdart_yellow</span></div>
+        <div class="recipe"><b>合成/获取：</b>芦苇 ×2 + 伏特羊角等。</div>
+        <div class="use"><b>用途：</b>电击伤害。</div>
+        
+      </div>
+      <button class="copy-btn" data-code="c_give(&quot;blowdart_yellow&quot;, 10)">复制生成代码</button>
+    </article>
+    </div>
+  </section>
+
+  <p class="footer-note">备注：DST 会持续更新角色技能树和专属物品。此页优先覆盖正常游玩中最常用、最值得查的物品；少数角色技能树新增物品或冷门变体可能需要后续继续补充。</p>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const search = document.getElementById('search');
+const chips = document.querySelectorAll('.chip');
+const itemCards = [...document.querySelectorAll('.item-card')];
+const cmdCards = [...document.querySelectorAll('.cmd-card')];
+const itemsBlock = document.getElementById('itemsBlock');
+const commandsBlock = document.getElementById('commandsBlock');
+let mode = 'all';
+let sectionFilter = '';
+let groupFilter = '';
+
+function copyText(text, btn) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => afterCopy(text, btn)).catch(() => fallbackCopy(text, btn));
+  } else {
+    fallbackCopy(text, btn);
+  }
+}
+function fallbackCopy(text, btn) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = 0;
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  afterCopy(text, btn);
+}
+function afterCopy(text, btn) {
+  const old = btn.textContent;
+  btn.textContent = '已复制';
+  btn.classList.add('copied');
+  showToast('已复制：' + text);
+  setTimeout(() => { btn.textContent = old; btn.classList.remove('copied'); }, 900);
+}
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(() => toast.style.display = 'none', 1600);
+}
+document.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', () => copyText(btn.dataset.code, btn)));
+
+chips.forEach(chip => {
+  chip.addEventListener('click', () => {
+    const type = chip.dataset.type;
+    const value = chip.dataset.value;
+    if (type === 'mode') {
+      mode = value;
+      document.querySelectorAll('.chip[data-type="mode"]').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    } else if (type === 'section') {
+      if (sectionFilter === value) {
+        sectionFilter = '';
+        chip.classList.remove('active');
+      } else {
+        sectionFilter = value;
+        document.querySelectorAll('.chip[data-type="section"]').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      }
+    } else if (type === 'group') {
+      if (groupFilter === value) {
+        groupFilter = '';
+        chip.classList.remove('active');
+      } else {
+        groupFilter = value;
+        document.querySelectorAll('.chip[data-type="group"]').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      }
+    }
+    filterAll();
+  });
+});
+search.addEventListener('input', filterAll);
+
+function filterAll() {
+  const q = search.value.trim().toLowerCase();
+
+  commandsBlock.style.display = (mode === 'all' || mode === 'commands') ? '' : 'none';
+  itemsBlock.style.display = (mode === 'all' || mode === 'items') ? '' : 'none';
+
+  let cmdVisible = 0;
+  cmdCards.forEach(card => {
+    const ok = card.dataset.search.includes(q);
+    card.classList.toggle('hidden', !ok);
+    if (ok) cmdVisible++;
+  });
+
+  let itemVisible = 0;
+  itemCards.forEach(card => {
+    const searchOk = card.dataset.search.includes(q);
+    const sectionOk = !sectionFilter || card.dataset.section === sectionFilter;
+    const groupOk = !groupFilter || card.dataset.group === groupFilter;
+    const ok = searchOk && sectionOk && groupOk;
+    card.classList.toggle('hidden', !ok);
+    if (ok) itemVisible++;
+  });
+
+  document.getElementById('cmdCount').textContent = cmdVisible + ' 条';
+  document.getElementById('itemCount').textContent = itemVisible + ' 条';
+}
+filterAll();
+</script>
+</body>
+</html>
