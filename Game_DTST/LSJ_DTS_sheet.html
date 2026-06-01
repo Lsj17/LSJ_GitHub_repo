@@ -127,7 +127,87 @@ p._lsj_handdurability_task=p:DoPeriodicTask(30,function()
             if v and v.components.container then scan(v,seen) end
         end
     end
-end)">复制指令</button></article><article class="cmd-card" data-tags="无限耐久" data-search="关闭自动补耐久 local p=theplayer
+end)">复制指令</button></article><article class="cmd-card" data-tags="生存状态|无限耐久" data-search="50%状态锁定+本人装备补耐久 local p=theplayer
+if p._lsj_safe50_task then p._lsj_safe50_task:cancel(); p._lsj_safe50_task=nil end
+if p._lsj_keepdurability_task then p._lsj_keepdurability_task:cancel(); p._lsj_keepdurability_task=nil end
+if p._lsj_handdurability_task then p._lsj_handdurability_task:cancel(); p._lsj_handdurability_task=nil end
+local function floor50(c)
+    if c and c.getpercent and c.setpercent and c:getpercent() &lt; .50 then c:setpercent(.50) end
+end
+local function keepstats()
+    if not p or not p:isvalid() then return end
+    floor50(p.components.health)
+    floor50(p.components.hunger)
+    floor50(p.components.sanity)
+end
+local function fix(inst)
+    if not inst or not inst:isvalid() then return end
+    if inst.components.finiteuses and inst.components.finiteuses:getpercent() &lt; .80 then inst.components.finiteuses:setpercent(.99) end
+    if inst.components.armor and inst.components.armor:getpercent() &lt; .80 then inst.components.armor:setpercent(.99) end
+    if inst.components.fueled and inst.components.fueled:getpercent() &lt; .80 then inst.components.fueled:setpercent(.99) end
+    if inst.components.perishable and inst.components.perishable:getpercent() &lt; .80 then inst.components.perishable:setpercent(.99) end
+end
+local function scan(inst,seen)
+    if not inst or seen[inst] then return end
+    seen[inst]=true
+    fix(inst)
+    if inst.components.container then
+        for k,v in pairs(inst.components.container.slots) do scan(v,seen) end
+    end
+end
+local function scanmine()
+    if p.components.inventory then
+        local seen={}
+        for k,v in pairs(p.components.inventory.itemslots) do scan(v,seen) end
+        for k,v in pairs(p.components.inventory.equipslots) do scan(v,seen) end
+        scan(p.components.inventory.activeitem,seen)
+    end
+end
+keepstats()
+scanmine()
+p._lsj_safe50_task=p:doperiodictask(1,keepstats)
+p._lsj_keepdurability_task=p:doperiodictask(30,scanmine) 血量、饥饿和理智低于50%立刻回到50%，高于50%时照常增减；同时每半分钟只检查本人主背包、手持、穿戴物，以及坎普斯背包等已装备容器里的物品，不检查地上的冰箱/箱子。 生存状态 无限耐久"><div class="main"><div class="title"><span>50%状态锁定+本人装备补耐久</span></div><div class="meta"><span>生存状态</span><span>无限耐久</span></div><div class="use"><b>用途：</b>血量、饥饿、理智低于50%立刻回到50%，高于50%时照常增减；同时每半分钟只检查本人主背包、手持、穿戴物和已装备容器里的物品，不检查地上的冰箱/箱子。</div></div><button class="copy-btn" data-code="local p=ThePlayer
+if p._lsj_safe50_task then p._lsj_safe50_task:Cancel(); p._lsj_safe50_task=nil end
+if p._lsj_keepdurability_task then p._lsj_keepdurability_task:Cancel(); p._lsj_keepdurability_task=nil end
+if p._lsj_handdurability_task then p._lsj_handdurability_task:Cancel(); p._lsj_handdurability_task=nil end
+local function floor50(c)
+    if c and c.GetPercent and c.SetPercent and c:GetPercent() &lt; .50 then c:SetPercent(.50) end
+end
+local function keepstats()
+    if not p or not p:IsValid() then return end
+    floor50(p.components.health)
+    floor50(p.components.hunger)
+    floor50(p.components.sanity)
+end
+local function fix(inst)
+    if not inst or not inst:IsValid() then return end
+    if inst.components.finiteuses and inst.components.finiteuses:GetPercent() &lt; .80 then inst.components.finiteuses:SetPercent(.99) end
+    if inst.components.armor and inst.components.armor:GetPercent() &lt; .80 then inst.components.armor:SetPercent(.99) end
+    if inst.components.fueled and inst.components.fueled:GetPercent() &lt; .80 then inst.components.fueled:SetPercent(.99) end
+    if inst.components.perishable and inst.components.perishable:GetPercent() &lt; .80 then inst.components.perishable:SetPercent(.99) end
+end
+local function scan(inst,seen)
+    if not inst or seen[inst] then return end
+    seen[inst]=true
+    fix(inst)
+    if inst.components.container then
+        for k,v in pairs(inst.components.container.slots) do scan(v,seen) end
+    end
+end
+local function scanmine()
+    if p.components.inventory then
+        local seen={}
+        for k,v in pairs(p.components.inventory.itemslots) do scan(v,seen) end
+        for k,v in pairs(p.components.inventory.equipslots) do scan(v,seen) end
+        scan(p.components.inventory.activeitem,seen)
+    end
+end
+keepstats()
+scanmine()
+p._lsj_safe50_task=p:DoPeriodicTask(1,keepstats)
+p._lsj_keepdurability_task=p:DoPeriodicTask(30,scanmine)">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="取消50%状态锁定 取消锁血 local p=theplayer
+if p._lsj_safe50_task then p._lsj_safe50_task:cancel(); p._lsj_safe50_task=nil end 只取消血量、饥饿、理智的50%下限锁定，不关闭自动补耐久。 生存状态"><div class="main"><div class="title"><span>取消50%状态锁定</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>只取消血量、饥饿、理智的50%下限锁定；不会关闭自动补耐久。</div></div><button class="copy-btn" data-code="local p=ThePlayer
+if p._lsj_safe50_task then p._lsj_safe50_task:Cancel(); p._lsj_safe50_task=nil end">复制指令</button></article><article class="cmd-card" data-tags="无限耐久" data-search="关闭自动补耐久 local p=theplayer
 if p._lsj_keepdurability_task then p._lsj_keepdurability_task:cancel(); p._lsj_keepdurability_task=nil end
 if p._lsj_handdurability_task then p._lsj_handdurability_task:cancel(); p._lsj_handdurability_task=nil end 关闭上面两个耐久循环。 无限耐久"><div class="main"><div class="title"><span>关闭自动补耐久</span></div><div class="meta"><span>无限耐久</span></div><div class="use"><b>用途：</b>关闭上面两个耐久循环。</div></div><button class="copy-btn" data-code="local p=ThePlayer
 if p._lsj_keepdurability_task then p._lsj_keepdurability_task:Cancel(); p._lsj_keepdurability_task=nil end
