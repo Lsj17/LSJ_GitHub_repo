@@ -38,13 +38,22 @@ local function fix(inst)
     if inst.components.fueled and inst.components.fueled:getpercent() &lt; .80 then inst.components.fueled:setpercent(.99) end
     if inst.components.perishable and inst.components.perishable:getpercent() &lt; .80 then inst.components.perishable:setpercent(.99) end
 end
+local function scan(inst,seen)
+    if not inst or seen[inst] then return end
+    seen[inst]=true
+    fix(inst)
+    if inst.components.container then
+        for k,v in pairs(inst.components.container.slots) do scan(v,seen) end
+    end
+end
 p._lsj_keepdurability_task=p:doperiodictask(30,function()
     if p.components.inventory then
-        for k,v in pairs(p.components.inventory.itemslots) do fix(v) end
-        for k,v in pairs(p.components.inventory.equipslots) do fix(v) end
-        if p.components.inventory.activeitem then fix(p.components.inventory.activeitem) end
+        local seen={}
+        for k,v in pairs(p.components.inventory.itemslots) do scan(v,seen) end
+        for k,v in pairs(p.components.inventory.equipslots) do scan(v,seen) end
+        scan(p.components.inventory.activeitem,seen)
     end
-end) 每半分钟检查一次本人背包、手持和穿戴物；耐久/护甲/燃料/新鲜度低于80%自动补到99%。给别人后不再自动补。 无限耐久"><div class="main"><div class="title"><span>背包+装备自动补耐久</span></div><div class="meta"><span>无限耐久</span></div><div class="use"><b>用途：</b>每半分钟检查一次本人背包、手持和穿戴物；耐久/护甲/燃料/新鲜度低于80%自动补到99%。给别人后不再自动补。</div></div><button class="copy-btn" data-code="local p=ThePlayer
+end) 每半分钟检查一次本人主背包、手持、穿戴物，以及坎普斯背包等已装备容器里的物品；耐久/护甲/燃料/新鲜度低于80%自动补到99%。给别人后不再自动补。 无限耐久"><div class="main"><div class="title"><span>背包+装备自动补耐久</span></div><div class="meta"><span>无限耐久</span></div><div class="use"><b>用途：</b>每半分钟检查一次本人主背包、手持、穿戴物，以及坎普斯背包等已装备容器里的物品；耐久/护甲/燃料/新鲜度低于80%自动补到99%。给别人后不再自动补。</div></div><button class="copy-btn" data-code="local p=ThePlayer
 if p._lsj_keepdurability_task then p._lsj_keepdurability_task:Cancel() end
 local function fix(inst)
     if not inst or not inst:IsValid() then return end
@@ -53,31 +62,70 @@ local function fix(inst)
     if inst.components.fueled and inst.components.fueled:GetPercent() &lt; .80 then inst.components.fueled:SetPercent(.99) end
     if inst.components.perishable and inst.components.perishable:GetPercent() &lt; .80 then inst.components.perishable:SetPercent(.99) end
 end
+local function scan(inst,seen)
+    if not inst or seen[inst] then return end
+    seen[inst]=true
+    fix(inst)
+    if inst.components.container then
+        for k,v in pairs(inst.components.container.slots) do scan(v,seen) end
+    end
+end
 p._lsj_keepdurability_task=p:DoPeriodicTask(30,function()
     if p.components.inventory then
-        for k,v in pairs(p.components.inventory.itemslots) do fix(v) end
-        for k,v in pairs(p.components.inventory.equipslots) do fix(v) end
-        if p.components.inventory.activeitem then fix(p.components.inventory.activeitem) end
+        local seen={}
+        for k,v in pairs(p.components.inventory.itemslots) do scan(v,seen) end
+        for k,v in pairs(p.components.inventory.equipslots) do scan(v,seen) end
+        scan(p.components.inventory.activeitem,seen)
     end
-end)">复制指令</button></article><article class="cmd-card" data-tags="无限耐久" data-search="仅手持物自动补耐久 local p=theplayer
+end)">复制指令</button></article><article class="cmd-card" data-tags="无限耐久" data-search="手持物+额外背包自动补耐久 local p=theplayer
 if p._lsj_handdurability_task then p._lsj_handdurability_task:cancel() end
-p._lsj_handdurability_task=p:doperiodictask(30,function()
-    local item=p.components.inventory and p.components.inventory:getequippeditem(equipslots.hands)
-    if item then
-        if item.components.finiteuses and item.components.finiteuses:getpercent() &lt; .80 then item.components.finiteuses:setpercent(.99) end
-        if item.components.armor and item.components.armor:getpercent() &lt; .80 then item.components.armor:setpercent(.99) end
-        if item.components.fueled and item.components.fueled:getpercent() &lt; .80 then item.components.fueled:setpercent(.99) end
-        if item.components.perishable and item.components.perishable:getpercent() &lt; .80 then item.components.perishable:setpercent(.99) end
+local function fix(inst)
+    if not inst or not inst:isvalid() then return end
+    if inst.components.finiteuses and inst.components.finiteuses:getpercent() &lt; .80 then inst.components.finiteuses:setpercent(.99) end
+    if inst.components.armor and inst.components.armor:getpercent() &lt; .80 then inst.components.armor:setpercent(.99) end
+    if inst.components.fueled and inst.components.fueled:getpercent() &lt; .80 then inst.components.fueled:setpercent(.99) end
+    if inst.components.perishable and inst.components.perishable:getpercent() &lt; .80 then inst.components.perishable:setpercent(.99) end
+end
+local function scan(inst,seen)
+    if not inst or seen[inst] then return end
+    seen[inst]=true
+    fix(inst)
+    if inst.components.container then
+        for k,v in pairs(inst.components.container.slots) do scan(v,seen) end
     end
-end) 每半分钟检查一次手上的工具/武器；低于80%补到99%。换下或给别人后不再自动补。 无限耐久"><div class="main"><div class="title"><span>仅手持物自动补耐久</span></div><div class="meta"><span>无限耐久</span></div><div class="use"><b>用途：</b>每半分钟检查一次手上的工具/武器；低于80%补到99%。换下或给别人后不再自动补。</div></div><button class="copy-btn" data-code="local p=ThePlayer
+end
+p._lsj_handdurability_task=p:doperiodictask(30,function()
+    if p.components.inventory then
+        local seen={}
+        scan(p.components.inventory:getequippeditem(equipslots.hands),seen)
+        for k,v in pairs(p.components.inventory.equipslots) do
+            if v and v.components.container then scan(v,seen) end
+        end
+    end
+end) 每半分钟检查一次手上的工具/武器，以及坎普斯背包等已装备容器里的物品；低于80%补到99%。换下或给别人后不再自动补。 无限耐久"><div class="main"><div class="title"><span>手持物+额外背包自动补耐久</span></div><div class="meta"><span>无限耐久</span></div><div class="use"><b>用途：</b>每半分钟检查一次手上的工具/武器，以及坎普斯背包等已装备容器里的物品；低于80%补到99%。换下或给别人后不再自动补。</div></div><button class="copy-btn" data-code="local p=ThePlayer
 if p._lsj_handdurability_task then p._lsj_handdurability_task:Cancel() end
+local function fix(inst)
+    if not inst or not inst:IsValid() then return end
+    if inst.components.finiteuses and inst.components.finiteuses:GetPercent() &lt; .80 then inst.components.finiteuses:SetPercent(.99) end
+    if inst.components.armor and inst.components.armor:GetPercent() &lt; .80 then inst.components.armor:SetPercent(.99) end
+    if inst.components.fueled and inst.components.fueled:GetPercent() &lt; .80 then inst.components.fueled:SetPercent(.99) end
+    if inst.components.perishable and inst.components.perishable:GetPercent() &lt; .80 then inst.components.perishable:SetPercent(.99) end
+end
+local function scan(inst,seen)
+    if not inst or seen[inst] then return end
+    seen[inst]=true
+    fix(inst)
+    if inst.components.container then
+        for k,v in pairs(inst.components.container.slots) do scan(v,seen) end
+    end
+end
 p._lsj_handdurability_task=p:DoPeriodicTask(30,function()
-    local item=p.components.inventory and p.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
-    if item then
-        if item.components.finiteuses and item.components.finiteuses:GetPercent() &lt; .80 then item.components.finiteuses:SetPercent(.99) end
-        if item.components.armor and item.components.armor:GetPercent() &lt; .80 then item.components.armor:SetPercent(.99) end
-        if item.components.fueled and item.components.fueled:GetPercent() &lt; .80 then item.components.fueled:SetPercent(.99) end
-        if item.components.perishable and item.components.perishable:GetPercent() &lt; .80 then item.components.perishable:SetPercent(.99) end
+    if p.components.inventory then
+        local seen={}
+        scan(p.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS),seen)
+        for k,v in pairs(p.components.inventory.equipslots) do
+            if v and v.components.container then scan(v,seen) end
+        end
     end
 end)">复制指令</button></article><article class="cmd-card" data-tags="无限耐久" data-search="关闭自动补耐久 local p=theplayer
 if p._lsj_keepdurability_task then p._lsj_keepdurability_task:cancel(); p._lsj_keepdurability_task=nil end
