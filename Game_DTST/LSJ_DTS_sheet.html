@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>LSJ 饥荒联机版代码与合成表 2026</title><style>:root{--bg:#0b0d10;--panel:#151821;--panel2:#10131a;--line:#2c3240;--text:#f4f4f5;--muted:#a1a1aa;--accent:#d6b15f;--accent2:#f0d38a;--ok:#2ea043;--btn:#2b3242;--btn2:#384154}*{box-sizing:border-box}body{margin:0;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;background:radial-gradient(circle at 10% -10%,rgba(214,177,95,.18),transparent 30%),radial-gradient(circle at 100% 0%,rgba(68,88,138,.22),transparent 32%),var(--bg)}.wrap{max-width:1250px;margin:0 auto;padding:22px 12px 70px}.hero{padding:20px 18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,rgba(21,24,33,.96),rgba(13,15,20,.96));box-shadow:0 16px 48px rgba(0,0,0,.25)}h1{margin:0 0 10px;font-size:28px}.desc{color:var(--muted);line-height:1.7;margin:0}.toolbar{position:sticky;top:0;z-index:10;margin:14px 0;padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(11,13,16,.94);backdrop-filter:blur(10px)}.search{width:100%;border:1px solid var(--line);border-radius:12px;background:#080a0d;color:var(--text);padding:13px 14px;font-size:16px;outline:none}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.chip{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:8px 11px;cursor:pointer;font-size:13px}.chip.active{background:var(--accent);color:#171717;border-color:var(--accent);font-weight:700}.section-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:24px 2px 12px}.section-title h2{margin:0;font-size:22px}.count{color:var(--muted);font-size:14px}.grid{display:grid;grid-template-columns:1fr;gap:10px}.item-card,.cmd-card{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:14px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(24,28,38,.94)}.title{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}.title span{font-size:18px;font-weight:760}.title small{color:var(--accent2);font-size:13px}.meta{display:flex;gap:7px;flex-wrap:wrap;margin:6px 0 8px}.meta span{color:#d4d4d8;font-size:12px;background:var(--panel2);border:1px solid var(--line);padding:4px 7px;border-radius:999px}.recipe,.use,.note-inline{color:#d4d4d8;line-height:1.62;font-size:14px}.note-inline{color:#f0d38a;margin-top:4px}.actions{display:flex;flex-direction:column;gap:8px}.copy-btn{border:1px solid #4b5567;border-radius:12px;background:var(--btn);color:var(--text);padding:10px 9px;font-weight:750;cursor:pointer}.copy-btn.secondary{background:#202634;color:#d4d4d8}.copy-btn:hover{background:var(--btn2)}.copy-btn.copied{background:var(--ok);border-color:var(--ok);color:#fff}.hidden{display:none!important}.footer-note{color:var(--muted);line-height:1.7;margin-top:18px;font-size:14px}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);display:none;background:#111827;border:1px solid #374151;color:white;padding:10px 14px;border-radius:999px;z-index:99;box-shadow:0 12px 36px rgba(0,0,0,.35);max-width:92vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@media(max-width:720px){.wrap{padding:14px 8px 44px}h1{font-size:22px}.item-card,.cmd-card{grid-template-columns:1fr}.actions{flex-direction:row}.copy-btn{flex:1}.title span{font-size:17px}.recipe,.use,.note-inline{font-size:13.5px}}</style></head><body><div class="wrap"><section class="hero"><h1>LSJ 饥荒联机版代码与合成表</h1><p class="desc">优化版：点击人名即可查看该角色相关道具；一个物品可以同时属于多个标签。沃尔特弹弓弹药同时归入“Walter 沃尔特”和“弹药/远程”。新增自动补耐久指令：保护 finiteuses 耐久和 fueled 燃料，运行时先补满，之后低于 80% 时补到 90%。</p></section><section class="toolbar"><input id="search" class="search" placeholder="搜索：阿比盖尔、弹弓、肉丸、旺达、WX、无限耐久、回满血"><div class="row"><button class="chip active" data-mode="all">全部</button><button class="chip" data-mode="commands">只看指令</button><button class="chip" data-mode="items">只看物品</button><button class="chip" id="clearFilters">清空筛选</button></div><div class="row" id="tagRow"><button class="chip" data-tag="通用材料">通用材料</button>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>LSJ 饥荒联机版代码与合成表 2026</title><style>:root{--bg:#0b0d10;--panel:#151821;--panel2:#10131a;--line:#2c3240;--text:#f4f4f5;--muted:#a1a1aa;--accent:#d6b15f;--accent2:#f0d38a;--ok:#2ea043;--btn:#2b3242;--btn2:#384154}*{box-sizing:border-box}body{margin:0;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;background:radial-gradient(circle at 10% -10%,rgba(214,177,95,.18),transparent 30%),radial-gradient(circle at 100% 0%,rgba(68,88,138,.22),transparent 32%),var(--bg)}.wrap{max-width:1250px;margin:0 auto;padding:22px 12px 70px}.hero{padding:20px 18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,rgba(21,24,33,.96),rgba(13,15,20,.96));box-shadow:0 16px 48px rgba(0,0,0,.25)}h1{margin:0 0 10px;font-size:28px}.desc{color:var(--muted);line-height:1.7;margin:0}.toolbar{position:sticky;top:0;z-index:10;margin:14px 0;padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(11,13,16,.94);backdrop-filter:blur(10px)}.search{width:100%;border:1px solid var(--line);border-radius:12px;background:#080a0d;color:var(--text);padding:13px 14px;font-size:16px;outline:none}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.chip{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:8px 11px;cursor:pointer;font-size:13px}.chip.active{background:var(--accent);color:#171717;border-color:var(--accent);font-weight:700}.section-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:24px 2px 12px}.section-title h2{margin:0;font-size:22px}.count{color:var(--muted);font-size:14px}.grid{display:grid;grid-template-columns:1fr;gap:10px}.item-card,.cmd-card{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:14px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(24,28,38,.94)}.title{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}.title span{font-size:18px;font-weight:760}.title small{color:var(--accent2);font-size:13px}.meta{display:flex;gap:7px;flex-wrap:wrap;margin:6px 0 8px}.meta span{color:#d4d4d8;font-size:12px;background:var(--panel2);border:1px solid var(--line);padding:4px 7px;border-radius:999px}.recipe,.use,.note-inline{color:#d4d4d8;line-height:1.62;font-size:14px}.note-inline{color:#f0d38a;margin-top:4px}.actions{display:flex;flex-direction:column;gap:8px}.copy-btn{border:1px solid #4b5567;border-radius:12px;background:var(--btn);color:var(--text);padding:10px 9px;font-weight:750;cursor:pointer}.copy-btn.secondary{background:#202634;color:#d4d4d8}.copy-btn:hover{background:var(--btn2)}.copy-btn.copied{background:var(--ok);border-color:var(--ok);color:#fff}.hidden{display:none!important}.footer-note{color:var(--muted);line-height:1.7;margin-top:18px;font-size:14px}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);display:none;background:#111827;border:1px solid #374151;color:white;padding:10px 14px;border-radius:999px;z-index:99;box-shadow:0 12px 36px rgba(0,0,0,.35);max-width:92vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@media(max-width:720px){.wrap{padding:14px 8px 44px}h1{font-size:22px}.item-card,.cmd-card{grid-template-columns:1fr}.actions{flex-direction:row}.copy-btn{flex:1}.title span{font-size:17px}.recipe,.use,.note-inline{font-size:13.5px}}</style></head><body><div class="wrap"><section class="hero"><h1>LSJ 饥荒联机版代码与合成表</h1><p class="desc">优化版：点击人名即可查看该角色相关道具；一个物品可以同时属于多个标签。沃尔特弹弓弹药同时归入“Walter 沃尔特”和“弹药/远程”。新增自动补耐久指令：监听物品百分比变化，耐久/燃料/护甲/新鲜度运行时先补满，之后低于 80% 时补到 90%。</p></section><section class="toolbar"><input id="search" class="search" placeholder="搜索：阿比盖尔、弹弓、肉丸、旺达、WX、无限耐久、回满血"><div class="row"><button class="chip active" data-mode="all">全部</button><button class="chip" data-mode="commands">只看指令</button><button class="chip" data-mode="items">只看物品</button><button class="chip" id="clearFilters">清空筛选</button></div><div class="row" id="tagRow"><button class="chip" data-tag="通用材料">通用材料</button>
 <button class="chip" data-tag="工具">工具</button>
 <button class="chip" data-tag="建筑">建筑</button>
 <button class="chip" data-tag="料理">料理</button>
@@ -29,160 +29,169 @@
 <button class="chip" data-tag="Walter 沃尔特">Walter 沃尔特</button>
 <button class="chip" data-tag="Wanda 旺达">Wanda 旺达</button>
 <button class="chip" data-tag="生存状态">生存状态</button>
-<button class="chip" data-tag="无限耐久">无限耐久</button></div></section><section id="commandsBlock"><div class="section-title"><h2>常用控制台指令</h2><span class="count" id="cmdCount"></span></div><div class="grid"><article class="cmd-card" data-tags="生存状态" data-search="上帝模式开/关 c_godmode() 免疫大多数伤害；再次输入通常会切换。 生存状态"><div class="main"><div class="title"><span>上帝模式开/关</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>免疫大多数伤害；再次输入通常会切换。</div></div><button class="copy-btn" data-code="c_godmode()">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="超级上帝模式 c_supergodmode() 回满血、饥饿、理智，并开启上帝模式。 生存状态"><div class="main"><div class="title"><span>超级上帝模式</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>回满血、饥饿、理智，并开启上帝模式。</div></div><button class="copy-btn" data-code="c_supergodmode()">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="回满血 c_sethealth(1) 生命值设为100%。 生存状态"><div class="main"><div class="title"><span>回满血</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>生命值设为100%。</div></div><button class="copy-btn" data-code="c_sethealth(1)">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="回满饥饿 c_sethunger(1) 饥饿值设为100%。 生存状态"><div class="main"><div class="title"><span>回满饥饿</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>饥饿值设为100%。</div></div><button class="copy-btn" data-code="c_sethunger(1)">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="回满理智 c_setsanity(1) 理智值设为100%。 生存状态"><div class="main"><div class="title"><span>回满理智</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>理智值设为100%。</div></div><button class="copy-btn" data-code="c_setsanity(1)">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="加速2倍 c_speedmult(2) 移动速度变为2倍。 生存状态"><div class="main"><div class="title"><span>加速2倍</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>移动速度变为2倍。</div></div><button class="copy-btn" data-code="c_speedmult(2)">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="复活自己 c_respawn() 死亡后复活当前玩家。 生存状态"><div class="main"><div class="title"><span>复活自己</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>死亡后复活当前玩家。</div></div><button class="copy-btn" data-code="c_respawn()">复制指令</button></article><article class="cmd-card" data-tags="无限耐久" data-search="背包+装备自动补耐久 使用时把本人主背包、手持、穿戴物，以及坎普斯背包等已装备容器里带 finiteuses 耐久或 fueled 燃料的物品补到100%；之后这些物品每次消耗到低于80%自动补到90%。给别人后不再自动补。 无限耐久"><div class="main"><div class="title"><span>背包+装备自动补耐久</span></div><div class="meta"><span>无限耐久</span></div><div class="use"><b>用途：</b>使用时把本人主背包、手持、穿戴物，以及坎普斯背包等已装备容器里带 finiteuses 耐久或 fueled 燃料的物品补到100%；之后这些物品每次消耗到低于80%自动补到90%。给别人后不再自动补。</div></div><button class="copy-btn" data-code="local p=ThePlayer
+<button class="chip" data-tag="无限耐久">无限耐久</button></div></section><section id="commandsBlock"><div class="section-title"><h2>常用控制台指令</h2><span class="count" id="cmdCount"></span></div><div class="grid"><article class="cmd-card" data-tags="生存状态" data-search="上帝模式开/关 c_godmode() 免疫大多数伤害；再次输入通常会切换。 生存状态"><div class="main"><div class="title"><span>上帝模式开/关</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>免疫大多数伤害；再次输入通常会切换。</div></div><button class="copy-btn" data-code="c_godmode()">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="超级上帝模式 c_supergodmode() 回满血、饥饿、理智，并开启上帝模式。 生存状态"><div class="main"><div class="title"><span>超级上帝模式</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>回满血、饥饿、理智，并开启上帝模式。</div></div><button class="copy-btn" data-code="c_supergodmode()">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="回满血 c_sethealth(1) 生命值设为100%。 生存状态"><div class="main"><div class="title"><span>回满血</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>生命值设为100%。</div></div><button class="copy-btn" data-code="c_sethealth(1)">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="回满饥饿 c_sethunger(1) 饥饿值设为100%。 生存状态"><div class="main"><div class="title"><span>回满饥饿</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>饥饿值设为100%。</div></div><button class="copy-btn" data-code="c_sethunger(1)">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="回满理智 c_setsanity(1) 理智值设为100%。 生存状态"><div class="main"><div class="title"><span>回满理智</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>理智值设为100%。</div></div><button class="copy-btn" data-code="c_setsanity(1)">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="加速2倍 c_speedmult(2) 移动速度变为2倍。 生存状态"><div class="main"><div class="title"><span>加速2倍</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>移动速度变为2倍。</div></div><button class="copy-btn" data-code="c_speedmult(2)">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="复活自己 c_respawn() 死亡后复活当前玩家。 生存状态"><div class="main"><div class="title"><span>复活自己</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>死亡后复活当前玩家。</div></div><button class="copy-btn" data-code="c_respawn()">复制指令</button></article><article class="cmd-card" data-tags="无限耐久" data-search="背包+装备自动补耐久 使用时把本人主背包、手持、穿戴物，以及坎普斯背包等已装备容器里的耐久/燃料/护甲/新鲜度补到100%；之后这些物品数值变化时，低于80%自动补到90%。给别人后不再自动补。 无限耐久"><div class="main"><div class="title"><span>背包+装备自动补耐久</span></div><div class="meta"><span>无限耐久</span></div><div class="use"><b>用途：</b>使用时把本人主背包、手持、穿戴物，以及坎普斯背包等已装备容器里的耐久/燃料/护甲/新鲜度补到100%；之后这些物品数值变化时，低于80%自动补到90%。给别人后不再自动补。</div></div><button class="copy-btn" data-code="local p=ThePlayer
 if not p or not p.components or not p.components.inventory then return end
 if p._lsj_keepdurability_task then p._lsj_keepdurability_task:Cancel(); p._lsj_keepdurability_task=nil end
 if p._lsj_handdurability_task then p._lsj_handdurability_task:Cancel(); p._lsj_handdurability_task=nil end
-local function pctlow(c)
-    return c and c.GetPercent and c:GetPercent()&lt;.80
+local function setcomp(c,full)
+    if c and c.GetPercent and c.SetPercent and (full or c:GetPercent()&lt;.80) then c:SetPercent(full and 1 or .90) end
 end
-local function hookfinite(item)
-    local f=item.components and item.components.finiteuses
-    if not f then return end
-    if item._lsj_dur80_hook and item._lsj_dur80_olduse then
-        f.Use=item._lsj_dur80_olduse
-        item._lsj_dur80_hook=nil
-        item._lsj_dur80_olduse=nil
-        item._lsj_dur80_check=nil
+local function fix(inst,full)
+    if not inst or not inst.components then return end
+    setcomp(inst.components.finiteuses,full)
+    setcomp(inst.components.fueled,full)
+    setcomp(inst.components.armor,full)
+    setcomp(inst.components.perishable,full)
+end
+local function restoreold(inst)
+    if not inst or not inst.components then return end
+    local fu=inst.components.finiteuses
+    if fu then
+        if inst._lsj_finiteuses_old_use then fu.Use=inst._lsj_finiteuses_old_use end
+        if inst._lsj_finiteuses_old_setuses then fu.SetUses=inst._lsj_finiteuses_old_setuses end
+        if inst._lsj_dur80_olduse then fu.Use=inst._lsj_dur80_olduse end
     end
-    if not item._lsj_finiteuses_hook then
-        item._lsj_finiteuses_hook=true
-        item._lsj_finiteuses_old_use=f.Use
-        item._lsj_finiteuses_old_setuses=f.SetUses
-        local olduse=f.Use
-        local oldsetuses=f.SetUses
-        f.SetUses=function(self,...)
-            oldsetuses(self,...)
-            if pctlow(self) then oldsetuses(self,self.total*.90) end
+    local fe=inst.components.fueled
+    if fe and inst._lsj_fueled_old_dodelta then fe.DoDelta=inst._lsj_fueled_old_dodelta end
+    inst._lsj_finiteuses_hook=nil
+    inst._lsj_finiteuses_old_use=nil
+    inst._lsj_finiteuses_old_setuses=nil
+    inst._lsj_fueled_hook=nil
+    inst._lsj_fueled_old_dodelta=nil
+    inst._lsj_dur80_hook=nil
+    inst._lsj_dur80_olduse=nil
+    inst._lsj_dur80_check=nil
+end
+local function install(inst,check)
+    if not inst or not inst.components then return end
+    restoreold(inst)
+    if inst._lsj_eventdur_fn then
+        inst:RemoveEventCallback(&quot;percentusedchange&quot;,inst._lsj_eventdur_fn)
+        inst:RemoveEventCallback(&quot;perishchange&quot;,inst._lsj_eventdur_fn)
+    end
+    inst._lsj_eventdur_check=check
+    inst._lsj_eventdur_fn=function(i)
+        local ok=i and i._lsj_eventdur_check
+        if (not ok or ok(i)) then fix(i,false) end
+    end
+    inst:ListenForEvent(&quot;percentusedchange&quot;,inst._lsj_eventdur_fn)
+    inst:ListenForEvent(&quot;perishchange&quot;,inst._lsj_eventdur_fn)
+    fix(inst,true)
+end
+local function scanall(fn)
+    local inv=p.components.inventory
+    local seen={}
+    local function scan(inst)
+        if not inst or seen[inst] then return end
+        seen[inst]=true
+        fn(inst)
+        if inst.components and inst.components.container and inst.components.container.slots then
+            for k,v in pairs(inst.components.container.slots) do scan(v) end
         end
-        f.Use=function(self,...)
-            olduse(self,...)
-            if pctlow(self) then oldsetuses(self,self.total*.90) end
-        end
     end
-    f:SetPercent(1)
+    for k,v in pairs(inv.itemslots or {}) do scan(v) end
+    scan(inv:GetEquippedItem(EQUIPSLOTS.HANDS))
+    for k,v in pairs(inv.equipslots or {}) do scan(v) end
+    scan(inv.activeitem)
 end
-local function hookfueled(item)
-    local f=item.components and item.components.fueled
-    if not f then return end
-    if not item._lsj_fueled_hook then
-        item._lsj_fueled_hook=true
-        item._lsj_fueled_old_dodelta=f.DoDelta
-        local olddodelta=f.DoDelta
-        f.DoDelta=function(self,...)
-            olddodelta(self,...)
-            if pctlow(self) and self.maxfuel and self.currentfuel then olddodelta(self,self.maxfuel*.90-self.currentfuel) end
-        end
-    end
-    f:SetPercent(1)
+local function ismine(target)
+    local found=false
+    scanall(function(inst) if inst==target then found=true end end)
+    return found
 end
-local function install(item)
-    if item and item.components then
-        hookfinite(item)
-        hookfueled(item)
-    end
-end
-local function scan(inst,seen)
-    if not inst or seen[inst] then return end
-    seen[inst]=true
-    install(inst)
-    if inst.components and inst.components.container and inst.components.container.slots then
-        for k,v in pairs(inst.components.container.slots) do scan(v,seen) end
-    end
-end
-local inv=p.components.inventory
-local seen={}
-for k,v in pairs(inv.itemslots or {}) do scan(v,seen) end
-scan(inv:GetEquippedItem(EQUIPSLOTS.HANDS),seen)
-for k,v in pairs(inv.equipslots or {}) do scan(v,seen) end
-scan(inv.activeitem,seen)">复制指令</button></article><article class="cmd-card" data-tags="无限耐久" data-search="手持物+额外背包自动补耐久 使用时把手上的工具/武器/火把，以及坎普斯背包等已装备容器里带 finiteuses 耐久或 fueled 燃料的物品补到100%；之后这些物品每次消耗到低于80%自动补到90%。换下或给别人后不再自动补。 无限耐久"><div class="main"><div class="title"><span>手持物+额外背包自动补耐久</span></div><div class="meta"><span>无限耐久</span></div><div class="use"><b>用途：</b>使用时把手上的工具/武器/火把，以及坎普斯背包等已装备容器里带 finiteuses 耐久或 fueled 燃料的物品补到100%；之后这些物品每次消耗到低于80%自动补到90%。换下或给别人后不再自动补。</div></div><button class="copy-btn" data-code="local p=ThePlayer
+scanall(function(inst) install(inst,ismine) end)">复制指令</button></article><article class="cmd-card" data-tags="无限耐久" data-search="手持物+额外背包自动补耐久 使用时把手上的工具/武器/火把，以及坎普斯背包等已装备容器里的耐久/燃料/护甲/新鲜度补到100%；之后这些物品数值变化时，低于80%自动补到90%。换下或给别人后不再自动补。 无限耐久"><div class="main"><div class="title"><span>手持物+额外背包自动补耐久</span></div><div class="meta"><span>无限耐久</span></div><div class="use"><b>用途：</b>使用时把手上的工具/武器/火把，以及坎普斯背包等已装备容器里的耐久/燃料/护甲/新鲜度补到100%；之后这些物品数值变化时，低于80%自动补到90%。换下或给别人后不再自动补。</div></div><button class="copy-btn" data-code="local p=ThePlayer
 if not p or not p.components or not p.components.inventory then return end
 if p._lsj_handdurability_task then p._lsj_handdurability_task:Cancel(); p._lsj_handdurability_task=nil end
 if p._lsj_keepdurability_task then p._lsj_keepdurability_task:Cancel(); p._lsj_keepdurability_task=nil end
-local function pctlow(c)
-    return c and c.GetPercent and c:GetPercent()&lt;.80
+local function setcomp(c,full)
+    if c and c.GetPercent and c.SetPercent and (full or c:GetPercent()&lt;.80) then c:SetPercent(full and 1 or .90) end
 end
-local function hookfinite(item)
-    local f=item.components and item.components.finiteuses
-    if not f then return end
-    if item._lsj_dur80_hook and item._lsj_dur80_olduse then
-        f.Use=item._lsj_dur80_olduse
-        item._lsj_dur80_hook=nil
-        item._lsj_dur80_olduse=nil
-        item._lsj_dur80_check=nil
+local function fix(inst,full)
+    if not inst or not inst.components then return end
+    setcomp(inst.components.finiteuses,full)
+    setcomp(inst.components.fueled,full)
+    setcomp(inst.components.armor,full)
+    setcomp(inst.components.perishable,full)
+end
+local function restoreold(inst)
+    if not inst or not inst.components then return end
+    local fu=inst.components.finiteuses
+    if fu then
+        if inst._lsj_finiteuses_old_use then fu.Use=inst._lsj_finiteuses_old_use end
+        if inst._lsj_finiteuses_old_setuses then fu.SetUses=inst._lsj_finiteuses_old_setuses end
+        if inst._lsj_dur80_olduse then fu.Use=inst._lsj_dur80_olduse end
     end
-    if not item._lsj_finiteuses_hook then
-        item._lsj_finiteuses_hook=true
-        item._lsj_finiteuses_old_use=f.Use
-        item._lsj_finiteuses_old_setuses=f.SetUses
-        local olduse=f.Use
-        local oldsetuses=f.SetUses
-        f.SetUses=function(self,...)
-            oldsetuses(self,...)
-            if pctlow(self) then oldsetuses(self,self.total*.90) end
+    local fe=inst.components.fueled
+    if fe and inst._lsj_fueled_old_dodelta then fe.DoDelta=inst._lsj_fueled_old_dodelta end
+    inst._lsj_finiteuses_hook=nil
+    inst._lsj_finiteuses_old_use=nil
+    inst._lsj_finiteuses_old_setuses=nil
+    inst._lsj_fueled_hook=nil
+    inst._lsj_fueled_old_dodelta=nil
+    inst._lsj_dur80_hook=nil
+    inst._lsj_dur80_olduse=nil
+    inst._lsj_dur80_check=nil
+end
+local function install(inst,check)
+    if not inst or not inst.components then return end
+    restoreold(inst)
+    if inst._lsj_eventdur_fn then
+        inst:RemoveEventCallback(&quot;percentusedchange&quot;,inst._lsj_eventdur_fn)
+        inst:RemoveEventCallback(&quot;perishchange&quot;,inst._lsj_eventdur_fn)
+    end
+    inst._lsj_eventdur_check=check
+    inst._lsj_eventdur_fn=function(i)
+        local ok=i and i._lsj_eventdur_check
+        if (not ok or ok(i)) then fix(i,false) end
+    end
+    inst:ListenForEvent(&quot;percentusedchange&quot;,inst._lsj_eventdur_fn)
+    inst:ListenForEvent(&quot;perishchange&quot;,inst._lsj_eventdur_fn)
+    fix(inst,true)
+end
+local function scanscope(fn)
+    local inv=p.components.inventory
+    local seen={}
+    local function scan(inst)
+        if not inst or seen[inst] then return end
+        seen[inst]=true
+        fn(inst)
+        if inst.components and inst.components.container and inst.components.container.slots then
+            for k,v in pairs(inst.components.container.slots) do scan(v) end
         end
-        f.Use=function(self,...)
-            olduse(self,...)
-            if pctlow(self) then oldsetuses(self,self.total*.90) end
-        end
     end
-    f:SetPercent(1)
-end
-local function hookfueled(item)
-    local f=item.components and item.components.fueled
-    if not f then return end
-    if not item._lsj_fueled_hook then
-        item._lsj_fueled_hook=true
-        item._lsj_fueled_old_dodelta=f.DoDelta
-        local olddodelta=f.DoDelta
-        f.DoDelta=function(self,...)
-            olddodelta(self,...)
-            if pctlow(self) and self.maxfuel and self.currentfuel then olddodelta(self,self.maxfuel*.90-self.currentfuel) end
-        end
-    end
-    f:SetPercent(1)
-end
-local function install(item)
-    if item and item.components then
-        hookfinite(item)
-        hookfueled(item)
+    scan(inv:GetEquippedItem(EQUIPSLOTS.HANDS))
+    for k,v in pairs(inv.equipslots or {}) do
+        if v and v.components and v.components.container then scan(v) end
     end
 end
-local function scan(inst,seen)
-    if not inst or seen[inst] then return end
-    seen[inst]=true
-    install(inst)
-    if inst.components and inst.components.container and inst.components.container.slots then
-        for k,v in pairs(inst.components.container.slots) do scan(v,seen) end
-    end
+local function ismine(target)
+    local found=false
+    scanscope(function(inst) if inst==target then found=true end end)
+    return found
 end
-local inv=p.components.inventory
-local seen={}
-scan(inv:GetEquippedItem(EQUIPSLOTS.HANDS),seen)
-for k,v in pairs(inv.equipslots or {}) do
-    if v and v.components and v.components.container then scan(v,seen) end
-end">复制指令</button></article><article class="cmd-card" data-tags="无限耐久" data-search="关闭自动补耐久 关闭自动补耐久任务，并恢复当前本人持有物品的耐久/燃料使用函数。 无限耐久"><div class="main"><div class="title"><span>关闭自动补耐久</span></div><div class="meta"><span>无限耐久</span></div><div class="use"><b>用途：</b>关闭自动补耐久任务，并恢复当前本人持有物品的耐久/燃料使用函数。</div></div><button class="copy-btn" data-code="local p=ThePlayer
+scanscope(function(inst) install(inst,ismine) end)">复制指令</button></article><article class="cmd-card" data-tags="无限耐久" data-search="关闭自动补耐久 关闭自动补耐久事件监听，并恢复当前本人持有物品的旧耐久/燃料使用函数。 无限耐久"><div class="main"><div class="title"><span>关闭自动补耐久</span></div><div class="meta"><span>无限耐久</span></div><div class="use"><b>用途：</b>关闭自动补耐久事件监听，并恢复当前本人持有物品的旧耐久/燃料使用函数。</div></div><button class="copy-btn" data-code="local p=ThePlayer
 if not p then return end
 if p._lsj_keepdurability_task then p._lsj_keepdurability_task:Cancel(); p._lsj_keepdurability_task=nil end
 if p._lsj_handdurability_task then p._lsj_handdurability_task:Cancel(); p._lsj_handdurability_task=nil end
 local function restore(inst,seen)
     if not inst or seen[inst] then return end
     seen[inst]=true
+    if inst._lsj_eventdur_fn then
+        inst:RemoveEventCallback(&quot;percentusedchange&quot;,inst._lsj_eventdur_fn)
+        inst:RemoveEventCallback(&quot;perishchange&quot;,inst._lsj_eventdur_fn)
+    end
     if inst.components then
         local fu=inst.components.finiteuses
         if fu then
-            if inst._lsj_finiteuses_hook then
-                if inst._lsj_finiteuses_old_use then fu.Use=inst._lsj_finiteuses_old_use end
-                if inst._lsj_finiteuses_old_setuses then fu.SetUses=inst._lsj_finiteuses_old_setuses end
-            elseif inst._lsj_dur80_hook and inst._lsj_dur80_olduse then
-                fu.Use=inst._lsj_dur80_olduse
-            end
+            if inst._lsj_finiteuses_old_use then fu.Use=inst._lsj_finiteuses_old_use end
+            if inst._lsj_finiteuses_old_setuses then fu.SetUses=inst._lsj_finiteuses_old_setuses end
+            if inst._lsj_dur80_olduse then fu.Use=inst._lsj_dur80_olduse end
         end
         local fe=inst.components.fueled
-        if fe and inst._lsj_fueled_hook and inst._lsj_fueled_old_dodelta then
-            fe.DoDelta=inst._lsj_fueled_old_dodelta
-        end
+        if fe and inst._lsj_fueled_old_dodelta then fe.DoDelta=inst._lsj_fueled_old_dodelta end
     end
+    inst._lsj_eventdur_fn=nil
+    inst._lsj_eventdur_check=nil
     inst._lsj_finiteuses_hook=nil
     inst._lsj_finiteuses_old_use=nil
     inst._lsj_finiteuses_old_setuses=nil
