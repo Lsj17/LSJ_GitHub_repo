@@ -31,6 +31,7 @@
 <button class="chip" data-tag="生存状态">生存状态</button>
 <button class="chip" data-tag="无限耐久">无限耐久</button></div></section><section id="commandsBlock"><div class="section-title"><h2>常用控制台指令</h2><span class="count" id="cmdCount"></span></div><div class="grid"><article class="cmd-card" data-tags="生存状态" data-search="上帝模式开/关 c_godmode() 免疫大多数伤害；再次输入通常会切换。 生存状态"><div class="main"><div class="title"><span>上帝模式开/关</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>免疫大多数伤害；再次输入通常会切换。</div></div><button class="copy-btn" data-code="c_godmode()">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="超级上帝模式 c_supergodmode() 回满血、饥饿、理智，并开启上帝模式。 生存状态"><div class="main"><div class="title"><span>超级上帝模式</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>回满血、饥饿、理智，并开启上帝模式。</div></div><button class="copy-btn" data-code="c_supergodmode()">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="回满血 c_sethealth(1) 生命值设为100%。 生存状态"><div class="main"><div class="title"><span>回满血</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>生命值设为100%。</div></div><button class="copy-btn" data-code="c_sethealth(1)">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="回满饥饿 c_sethunger(1) 饥饿值设为100%。 生存状态"><div class="main"><div class="title"><span>回满饥饿</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>饥饿值设为100%。</div></div><button class="copy-btn" data-code="c_sethunger(1)">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="回满理智 c_setsanity(1) 理智值设为100%。 生存状态"><div class="main"><div class="title"><span>回满理智</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>理智值设为100%。</div></div><button class="copy-btn" data-code="c_setsanity(1)">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="加速2倍 c_speedmult(2) 移动速度变为2倍。 生存状态"><div class="main"><div class="title"><span>加速2倍</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>移动速度变为2倍。</div></div><button class="copy-btn" data-code="c_speedmult(2)">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="复活自己 c_respawn() 死亡后复活当前玩家。 生存状态"><div class="main"><div class="title"><span>复活自己</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>死亡后复活当前玩家。</div></div><button class="copy-btn" data-code="c_respawn()">复制指令</button></article><article class="cmd-card" data-tags="无限耐久" data-search="背包+装备自动补耐久 local p=theplayer
 if p._lsj_keepdurability_task then p._lsj_keepdurability_task:cancel() end
+if p._lsj_handdurability_task then p._lsj_handdurability_task:cancel(); p._lsj_handdurability_task=nil end
 local function fix(inst)
     if not inst or not inst:isvalid() then return end
     if inst.components.finiteuses and inst.components.finiteuses:getpercent() &lt; .80 then inst.components.finiteuses:setpercent(.99) end
@@ -46,15 +47,19 @@ local function scan(inst,seen)
         for k,v in pairs(inst.components.container.slots) do scan(v,seen) end
     end
 end
-p._lsj_keepdurability_task=p:doperiodictask(30,function()
+local function scanmine()
     if p.components.inventory then
         local seen={}
         for k,v in pairs(p.components.inventory.itemslots) do scan(v,seen) end
+        scan(p.components.inventory:getequippeditem(equipslots.hands),seen)
         for k,v in pairs(p.components.inventory.equipslots) do scan(v,seen) end
         scan(p.components.inventory.activeitem,seen)
     end
-end) 每半分钟检查一次本人主背包、手持、穿戴物，以及坎普斯背包等已装备容器里的物品；耐久/护甲/燃料/新鲜度低于80%自动补到99%。给别人后不再自动补。 无限耐久"><div class="main"><div class="title"><span>背包+装备自动补耐久</span></div><div class="meta"><span>无限耐久</span></div><div class="use"><b>用途：</b>每半分钟检查一次本人主背包、手持、穿戴物，以及坎普斯背包等已装备容器里的物品；耐久/护甲/燃料/新鲜度低于80%自动补到99%。给别人后不再自动补。</div></div><button class="copy-btn" data-code="local p=ThePlayer
+end
+scanmine()
+p._lsj_keepdurability_task=p:doperiodictask(1,scanmine) 每秒检查一次本人主背包、手持、穿戴物，以及坎普斯背包等已装备容器里的物品；耐久/护甲/燃料/新鲜度低于80%自动补到99%。给别人后不再自动补。 无限耐久"><div class="main"><div class="title"><span>背包+装备自动补耐久</span></div><div class="meta"><span>无限耐久</span></div><div class="use"><b>用途：</b>每秒检查一次本人主背包、手持、穿戴物，以及坎普斯背包等已装备容器里的物品；耐久/护甲/燃料/新鲜度低于80%自动补到99%。给别人后不再自动补。</div></div><button class="copy-btn" data-code="local p=ThePlayer
 if p._lsj_keepdurability_task then p._lsj_keepdurability_task:Cancel() end
+if p._lsj_handdurability_task then p._lsj_handdurability_task:Cancel(); p._lsj_handdurability_task=nil end
 local function fix(inst)
     if not inst or not inst:IsValid() then return end
     if inst.components.finiteuses and inst.components.finiteuses:GetPercent() &lt; .80 then inst.components.finiteuses:SetPercent(.99) end
@@ -70,15 +75,19 @@ local function scan(inst,seen)
         for k,v in pairs(inst.components.container.slots) do scan(v,seen) end
     end
 end
-p._lsj_keepdurability_task=p:DoPeriodicTask(30,function()
+local function scanmine()
     if p.components.inventory then
         local seen={}
         for k,v in pairs(p.components.inventory.itemslots) do scan(v,seen) end
+        scan(p.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS),seen)
         for k,v in pairs(p.components.inventory.equipslots) do scan(v,seen) end
         scan(p.components.inventory.activeitem,seen)
     end
-end)">复制指令</button></article><article class="cmd-card" data-tags="无限耐久" data-search="手持物+额外背包自动补耐久 local p=theplayer
+end
+scanmine()
+p._lsj_keepdurability_task=p:DoPeriodicTask(1,scanmine)">复制指令</button></article><article class="cmd-card" data-tags="无限耐久" data-search="手持物+额外背包自动补耐久 local p=theplayer
 if p._lsj_handdurability_task then p._lsj_handdurability_task:cancel() end
+if p._lsj_keepdurability_task then p._lsj_keepdurability_task:cancel(); p._lsj_keepdurability_task=nil end
 local function fix(inst)
     if not inst or not inst:isvalid() then return end
     if inst.components.finiteuses and inst.components.finiteuses:getpercent() &lt; .80 then inst.components.finiteuses:setpercent(.99) end
@@ -94,7 +103,7 @@ local function scan(inst,seen)
         for k,v in pairs(inst.components.container.slots) do scan(v,seen) end
     end
 end
-p._lsj_handdurability_task=p:doperiodictask(30,function()
+local function scanhand()
     if p.components.inventory then
         local seen={}
         scan(p.components.inventory:getequippeditem(equipslots.hands),seen)
@@ -102,8 +111,11 @@ p._lsj_handdurability_task=p:doperiodictask(30,function()
             if v and v.components.container then scan(v,seen) end
         end
     end
-end) 每半分钟检查一次手上的工具/武器，以及坎普斯背包等已装备容器里的物品；低于80%补到99%。换下或给别人后不再自动补。 无限耐久"><div class="main"><div class="title"><span>手持物+额外背包自动补耐久</span></div><div class="meta"><span>无限耐久</span></div><div class="use"><b>用途：</b>每半分钟检查一次手上的工具/武器，以及坎普斯背包等已装备容器里的物品；低于80%补到99%。换下或给别人后不再自动补。</div></div><button class="copy-btn" data-code="local p=ThePlayer
+end
+scanhand()
+p._lsj_handdurability_task=p:doperiodictask(1,scanhand) 每秒检查一次手上的工具/武器，以及坎普斯背包等已装备容器里的物品；低于80%补到99%。换下或给别人后不再自动补。 无限耐久"><div class="main"><div class="title"><span>手持物+额外背包自动补耐久</span></div><div class="meta"><span>无限耐久</span></div><div class="use"><b>用途：</b>每秒检查一次手上的工具/武器，以及坎普斯背包等已装备容器里的物品；低于80%补到99%。换下或给别人后不再自动补。</div></div><button class="copy-btn" data-code="local p=ThePlayer
 if p._lsj_handdurability_task then p._lsj_handdurability_task:Cancel() end
+if p._lsj_keepdurability_task then p._lsj_keepdurability_task:Cancel(); p._lsj_keepdurability_task=nil end
 local function fix(inst)
     if not inst or not inst:IsValid() then return end
     if inst.components.finiteuses and inst.components.finiteuses:GetPercent() &lt; .80 then inst.components.finiteuses:SetPercent(.99) end
@@ -119,7 +131,7 @@ local function scan(inst,seen)
         for k,v in pairs(inst.components.container.slots) do scan(v,seen) end
     end
 end
-p._lsj_handdurability_task=p:DoPeriodicTask(30,function()
+local function scanhand()
     if p.components.inventory then
         local seen={}
         scan(p.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS),seen)
@@ -127,7 +139,9 @@ p._lsj_handdurability_task=p:DoPeriodicTask(30,function()
             if v and v.components.container then scan(v,seen) end
         end
     end
-end)">复制指令</button></article><article class="cmd-card" data-tags="生存状态|无限耐久" data-search="50%状态锁定+本人装备补耐久 local p=theplayer
+end
+scanhand()
+p._lsj_handdurability_task=p:DoPeriodicTask(1,scanhand)">复制指令</button></article><article class="cmd-card" data-tags="生存状态|无限耐久" data-search="50%状态锁定+本人装备补耐久 local p=theplayer
 if p._lsj_safe50_task then p._lsj_safe50_task:cancel(); p._lsj_safe50_task=nil end
 if p._lsj_keepdurability_task then p._lsj_keepdurability_task:cancel(); p._lsj_keepdurability_task=nil end
 if p._lsj_handdurability_task then p._lsj_handdurability_task:cancel(); p._lsj_handdurability_task=nil end
@@ -159,6 +173,7 @@ local function scanmine()
     if p.components.inventory then
         local seen={}
         for k,v in pairs(p.components.inventory.itemslots) do scan(v,seen) end
+        scan(p.components.inventory:getequippeditem(equipslots.hands),seen)
         for k,v in pairs(p.components.inventory.equipslots) do scan(v,seen) end
         scan(p.components.inventory.activeitem,seen)
     end
@@ -166,7 +181,7 @@ end
 keepstats()
 scanmine()
 p._lsj_safe50_task=p:doperiodictask(1,keepstats)
-p._lsj_keepdurability_task=p:doperiodictask(30,scanmine) 血量、饥饿和理智低于50%立刻回到50%，高于50%时照常增减；同时每半分钟只检查本人主背包、手持、穿戴物，以及坎普斯背包等已装备容器里的物品，不检查地上的冰箱/箱子。 生存状态 无限耐久"><div class="main"><div class="title"><span>50%状态锁定+本人装备补耐久</span></div><div class="meta"><span>生存状态</span><span>无限耐久</span></div><div class="use"><b>用途：</b>血量、饥饿、理智低于50%立刻回到50%，高于50%时照常增减；同时每半分钟只检查本人主背包、手持、穿戴物和已装备容器里的物品，不检查地上的冰箱/箱子。</div></div><button class="copy-btn" data-code="local p=ThePlayer
+p._lsj_keepdurability_task=p:doperiodictask(1,scanmine) 血量、饥饿和理智低于50%立刻回到50%，高于50%时照常增减；同时每秒只检查本人主背包、手持、穿戴物，以及坎普斯背包等已装备容器里的物品，不检查地上的冰箱/箱子。 生存状态 无限耐久"><div class="main"><div class="title"><span>50%状态锁定+本人装备补耐久</span></div><div class="meta"><span>生存状态</span><span>无限耐久</span></div><div class="use"><b>用途：</b>血量、饥饿、理智低于50%立刻回到50%，高于50%时照常增减；同时每秒只检查本人主背包、手持、穿戴物和已装备容器里的物品，不检查地上的冰箱/箱子。</div></div><button class="copy-btn" data-code="local p=ThePlayer
 if p._lsj_safe50_task then p._lsj_safe50_task:Cancel(); p._lsj_safe50_task=nil end
 if p._lsj_keepdurability_task then p._lsj_keepdurability_task:Cancel(); p._lsj_keepdurability_task=nil end
 if p._lsj_handdurability_task then p._lsj_handdurability_task:Cancel(); p._lsj_handdurability_task=nil end
@@ -198,6 +213,7 @@ local function scanmine()
     if p.components.inventory then
         local seen={}
         for k,v in pairs(p.components.inventory.itemslots) do scan(v,seen) end
+        scan(p.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS),seen)
         for k,v in pairs(p.components.inventory.equipslots) do scan(v,seen) end
         scan(p.components.inventory.activeitem,seen)
     end
@@ -205,7 +221,7 @@ end
 keepstats()
 scanmine()
 p._lsj_safe50_task=p:DoPeriodicTask(1,keepstats)
-p._lsj_keepdurability_task=p:DoPeriodicTask(30,scanmine)">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="取消50%状态锁定 取消锁血 local p=theplayer
+p._lsj_keepdurability_task=p:DoPeriodicTask(1,scanmine)">复制指令</button></article><article class="cmd-card" data-tags="生存状态" data-search="取消50%状态锁定 取消锁血 local p=theplayer
 if p._lsj_safe50_task then p._lsj_safe50_task:cancel(); p._lsj_safe50_task=nil end 只取消血量、饥饿、理智的50%下限锁定，不关闭自动补耐久。 生存状态"><div class="main"><div class="title"><span>取消50%状态锁定</span></div><div class="meta"><span>生存状态</span></div><div class="use"><b>用途：</b>只取消血量、饥饿、理智的50%下限锁定；不会关闭自动补耐久。</div></div><button class="copy-btn" data-code="local p=ThePlayer
 if p._lsj_safe50_task then p._lsj_safe50_task:Cancel(); p._lsj_safe50_task=nil end">复制指令</button></article><article class="cmd-card" data-tags="无限耐久" data-search="关闭自动补耐久 local p=theplayer
 if p._lsj_keepdurability_task then p._lsj_keepdurability_task:cancel(); p._lsj_keepdurability_task=nil end
