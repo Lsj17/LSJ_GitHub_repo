@@ -447,6 +447,12 @@
       const visible = data.items.filter(item => {
         const categoryMatch = activeCategory === "全部" || item.category === activeCategory;
         return categoryMatch && (!query || normalized(item).includes(query));
+      }).sort((a, b) => {
+        if (!query) return 0;
+        const aName = a.name.toLowerCase();
+        const bName = b.name.toLowerCase();
+        const score = name => name === query ? 0 : name.startsWith(query) ? 1 : name.includes(query) ? 2 : 3;
+        return score(aName) - score(bName) || a.category.localeCompare(b.category, "zh-CN") || a.name.localeCompare(b.name, "zh-CN");
       });
 
       cards.innerHTML = visible.map(item => cardHtml(item, query)).join("");
