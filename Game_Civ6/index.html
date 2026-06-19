@@ -323,9 +323,9 @@
 <body>
   <header class="hero">
     <div class="hero-inner">
-      <div class="eyebrow">文明6 · 百科右侧数值面板速查</div>
+      <div class="eyebrow">文明6 · 官方 XML 数值速查</div>
       <h1>查数值，不看长篇背景介绍</h1>
-      <p>按《文明百科》右侧信息栏整理区域的特点、要求、相邻加成、公民收益和贸易收益。适合游戏中边玩边搜“港口、学院、工业区、圣地”。</p>
+      <p>从本机《文明6》官方数据文件整理区域、建筑、奇观、单位、改良、资源、科技、市政、政体、政策和伟人。适合游戏中边玩边搜“港口、学院、工业区、战斗力、生产力消耗”。</p>
     </div>
   </header>
 
@@ -333,7 +333,7 @@
     <section class="toolbar" aria-label="搜索和筛选">
       <label class="search">
         <span aria-hidden="true">⌕</span>
-        <input id="search" type="search" placeholder="搜索：港口、学院、相邻加成、海军统帅、生产力、天文导航..." autocomplete="off">
+        <input id="search" type="search" placeholder="搜索：港口、学院、战斗力、生产力、维护费、天文导航、政策槽..." autocomplete="off">
       </label>
       <div class="filters" id="filters" aria-label="分类"></div>
     </section>
@@ -347,14 +347,14 @@
 
     <div class="section-head">
       <h2 id="activeTitle">全部条目</h2>
-      <div class="source-note">数据来自 <a href="https://www.civilopedia.net/zh-CN/gathering-storm/" target="_blank" rel="noreferrer">civilopedia.net 中文文明百科</a>；网页只提取数值面板，不摘录百科正文。</div>
+      <div class="source-note">数据来自本机《文明6》官方 XML；网页只展示游戏数值字段和关联表，不摘录百科正文。</div>
     </div>
 
     <section class="grid" id="cards" aria-live="polite"></section>
     <div class="empty" id="empty">没有找到匹配内容。可以搜“金币”“伟人点数”“放置”“生产力消耗”等数值字段。</div>
 
     <section class="foot">
-      首版重点覆盖“区域”类，因为它最接近你截图里的百科右栏：取代者、每回合伟人点、相邻加成、要求、放置条件、生产力消耗、公民收益、贸易收益等。每张卡片右上角都有来源链接，方便你核对原始百科页。
+      当前版本覆盖官方 XML 中的主要数值表：区域、建筑、奇观、单位、改良设施、资源、科技、市政、政体、政策、伟人。卡片中的“关联数值”会把相关表行也列出来，例如区域的建筑要求、相邻加成、伟人点数、贸易收益，单位的升级与资源消耗等。
     </section>
   </main>
 
@@ -411,6 +411,13 @@
       return `<div class="block"><div class="block-title">${highlight(section.title, query)}</div>${groups}</div>`;
     }
 
+    function sourceHtml(item) {
+      if (item.source && /^https?:\/\//.test(item.source)) {
+        return `<a class="source" href="${escapeHtml(item.source)}" target="_blank" rel="noreferrer">来源</a>`;
+      }
+      return `<span class="source">${escapeHtml(item.sourceFile || item.source || "官方数据")}</span>`;
+    }
+
     function cardHtml(item, query) {
       return `
         <article class="card">
@@ -419,7 +426,7 @@
               <h3 class="term">${highlight(item.name, query)}</h3>
               <div class="meta">${escapeHtml(item.category)} · ${escapeHtml(item.id)}</div>
             </div>
-            <a class="source" href="${escapeHtml(item.source)}" target="_blank" rel="noreferrer">来源</a>
+            ${sourceHtml(item)}
           </div>
           <div class="panel">
             ${item.sections.map(section => sectionHtml(section, query)).join("")}
